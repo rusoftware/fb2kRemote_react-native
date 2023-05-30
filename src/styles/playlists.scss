@@ -1,0 +1,130 @@
+.playlists-section {
+  width: 100%;
+  height: 100vh;
+  background-color: rgba(45,45,45,.3);
+  overflow: hidden;
+
+  .header {
+    display: flex;
+    height: auto;
+    justify-content: space-between;
+    padding: 1em;
+  }
+  
+  .dropdown {
+    position: relative;
+    //display: inline-block;
+    display: block;
+  }
+  
+  .dropdown-toggle {
+    background-color: #f1f1f1;
+    border: none;
+    color: #333;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    width: 100%;
+    text-align: left;
+  }
+  
+  .dropdown-toggle:hover {
+    background-color: #ddd;
+  }
+  
+  .dropdown-menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    padding: 10px 0 0;
+    list-style-type: none;
+    margin: 0;
+    width: 100%;
+    text-align: left;
+  }
+  
+  .dropdown-item {
+    padding: 10px 20px;
+    color: #333;
+    cursor: pointer;
+    
+    &:not(:last-child) {
+      border-bottom: 1px solid #ddd;
+    }
+  }
+  
+  .dropdown-item:hover {
+    background-color: #f9f9f9;
+  }
+
+  .playlists-container {
+    height: calc(100% - 100px); // 100px is the header + menu height, adapt it if required to avoid cut out items
+    overflow-y: scroll;
+    text-align: left;
+    padding: 0 .7em;
+
+    .album-header {
+      display: flex;
+      align-items: center;
+      padding: 2em 0 0;
+      border-bottom: solid 1px #ebebeb;
+
+      .cover {
+        width: 60px;
+      }
+
+      .title {
+        font-weight: 700;
+        line-height: 1.3em;
+        
+        .artist-name {
+          font-size: .8em;
+        }
+        
+        .album-name {
+          font-size: 1em;
+        }
+      } 
+    }
+
+    ul.playlists,
+    ul.playlists li {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      align-items: flex-start;
+      flex-direction: column;
+    }
+
+    ul.playlists li {
+      display: flex;
+      flex-direction: row;
+      width: calc(100% - 1em);
+      padding: .5em .5em .2em;
+      border: solid 1px rgba(255,255,255,.1);
+      border-width: 1px 0;
+      text-align: left;
+      line-height: 2em;
+      justify-content: space-between;
+      align-items: center;
+
+      span.track-name {
+        flex: 7 1;
+        overflow: hidden;
+        line-height: 1.2em;
+      }
+      span.track-info {
+          font-size: .7em;
+      }
+  
+      span.track-remove {
+          flex: 1 1;
+          text-align: center;
+          align-self: center;
+      }
+    }
+  }
+}

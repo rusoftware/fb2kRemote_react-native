@@ -1,0 +1,42 @@
+@import './toast.scss';
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400&display=swap');
+
+@font-face {
+  font-family: 'bronova-regular';
+  src: url('../assets/Bronova\ Regular.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'bronova-bold';
+  src: url('../assets/Bronova\ Bold.ttf') format('truetype');
+  /* Agrega otras fuentes en diferentes formatos si las tienes */
+}
+
+body {
+  margin: 0;
+  font-family: 'bronova-regular', 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: #ebebeb;
+  background: -webkit-linear-gradient(to right, #F29492, #114357);
+  background: linear-gradient(to right, #F29492, #114357); 
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+
+
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0;
+  color: #fff;
+  max-width: 480px;
+  /*height: 100vh;*/
+  text-align: center;
+}

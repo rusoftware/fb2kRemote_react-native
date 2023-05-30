@@ -1,0 +1,134 @@
+.player-page {
+  width: 90%;
+  height: 100vh;
+
+  .player {
+    height: calc(100vh - 120px);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    margin: 30px 0;
+    width: 100%;
+
+    .currently-playing {
+      width: 66%;
+      .album-cover {
+        width: 100%;
+        margin: 0 auto 12px;
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
+        line-height: 0;
+
+        img {
+          width: 100%;
+        }
+      }
+
+      .song-info {
+        display: block;
+        width: 100%;
+        height: 120px;
+        overflow: hidden;
+        margin: 0 auto;
+        text-align: left;
+        padding-left: 3px;
+
+        h1 {
+          font-size: 18px;
+          margin: 0px;
+          font-family: 'Roboto', 'bronova-regular', Arial, sans-serif;
+          font-weight: 400;
+        }
+
+        p {
+          font-size: 13px;
+          margin: 2px 0;
+          font-family: 'Roboto';
+          font-weight: 300;
+        }
+      }
+    }
+
+    .player-controls {
+      width: 100%;
+
+      .player-menu {
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: 86%;
+        margin: 0 auto;
+
+        .player-buttons {
+          position: relative;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+
+          button.main {
+            width: 60px;
+            height: 60px;
+            border: solid 1px #ebebeb;
+            background-color: transparent;
+            border-radius: 50%;
+            margin: 0 32px;
+    
+            .player-icons {
+              color: #ebebeb;
+            }
+          }
+    
+          button.secondary {
+            background-color: transparent;
+            border: 0;
+    
+            > * {
+              color: #ebebeb;
+            }
+          }
+        }
+      }
+
+      
+      // CUSTOMIZE DE INPUT RANGE
+      .progress-bar {
+        margin: 30px auto;
+      }
+
+      .range-input {
+        background: #D66D75;  /* fallback for old browsers */
+        background: -webkit-linear-gradient(to right, #E29587, #D66D75);  /* Chrome 10-25, Safari 5.1-6 */
+        background: linear-gradient(to right, #E29587, #D66D75); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+        border-radius: 8px;
+        height: 7px;
+        width: 86%;
+        outline: none;
+        transition: background 450ms ease-in;
+        -webkit-appearance: none;
+      }
+
+      input[type='range']::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        width: 14px;
+        height: 14px;
+        border-radius: 50px;
+        cursor: ew-resize;background: #D66D75;  /* fallback for old browsers */
+        background: -webkit-linear-gradient(to right, #E29587, #D66D75);  /* Chrome 10-25, Safari 5.1-6 */
+        background: linear-gradient(to right, #E29587, #D66D75); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+      }
+
+      .timer {
+        width: 86%;
+        margin: 0 auto;
+        display: flex;
+        justify-content: space-between;
+        font-size: 10px;
+        font-family: 'bronova-regular', 'Roboto';
+      }
+    }
+  }
+}
