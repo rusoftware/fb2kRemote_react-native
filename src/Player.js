@@ -56,8 +56,8 @@ const Player = ({
               minimumValue={0}
               maximumValue={currentSong.duration}
               value={songPosition}
-              onValueChange={(e) => {
-                const newPosition = parseInt(e.target.value, 10);
+              onValueChange={(newValue) => {
+                const newPosition = parseInt(newValue, 10);
                 updateSongPosition(newPosition);
               }}
               style={styles.rangeInput}
