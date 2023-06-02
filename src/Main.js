@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { StyleSheet, Text, View, TouchableWithoutFeedback } from 'react-native';
+import { StyleSheet, SafeAreaView, StatusBar, ScrollView, View, ImageBackground } from 'react-native';
 import API from '../config';
 import Player from './Player';
 import Tracklist from './Tracklist';
@@ -321,78 +321,72 @@ const Main = () => {
     };
 
     fetchFolders();
-  }, [currentPath, rootMusicPath]);
+  }, [currentPath, rootMusicPath])
+
+  const imgBg = (albumCover) ? {uri: albumCover} : require('../assets/img/ice-fire.jpg')
 
   return (
-    <View style={styles.body}>
-      <View style={styles.container}>
-        {page === 'player' && (
-          <>
-            <Player
-              albumCover={albumCover}
-              currentSong={currentSong}
-              songPosition={songPosition}
-              playing={playing}
+    <ImageBackground source={ imgBg } resizeMode="cover" blurRadius={20} style={{flex: 1}}>
+      <View style={{flex: 1, backgroundColor: '#10101066'}}>
+      <StatusBar 
+        animated={true}
+        backgroundColor='#00000000'
+        barStyle='light-content'
+        translucent={true}
+      />
+      <View style={styles.scrollView}>
+        <View style={{flex: 1}}>
+          {page === 'player' && (
+            <>
+              <Player
+                albumCover={albumCover}
+                currentSong={currentSong}
+                songPosition={songPosition}
+                playing={playing}
+                handlePageChange={handlePageChange}
+                handlePlayerClick={handlePlayerClick}
+                updateSongPosition={updateSongPosition}
+              />
+              <Tracklist
+                selectedPlaylist={selectedPlaylist}
+                playlists={playlists}
+                tracklistsSongs={tracklistsSongs}
+                playSong={playSong}
+                playlistItemsRemove={playlistItemsRemove}
+                currentSong={currentSong}
+              />
+            </>
+          )}
+          {page === 'explorer' && (
+            <Explorer
+              folders={folders}
+              setCurrentPath={setCurrentPath}
+              currentPath={currentPath}
               handlePageChange={handlePageChange}
-              handlePlayerClick={handlePlayerClick}
-              updateSongPosition={updateSongPosition}
+              rootMusicPath={rootMusicPath}
+              playlistItemsAdd={playlistItemsAdd}
             />
-            <Tracklist
+          )}
+          {page === 'playlists' && (
+            <Playlists
+              handlePageChange={handlePageChange}
               selectedPlaylist={selectedPlaylist}
+              setSelectedPlaylist={setSelectedPlaylist}
               playlists={playlists}
-              tracklistsSongs={tracklistsSongs}
+              selectedPlaylistSongs={selectedPlaylistSongs}
               playSong={playSong}
-              playlistItemsRemove={playlistItemsRemove}
-              currentSong={currentSong}
             />
-          </>
-        )}
-        {page === 'explorer' && (
-          <Explorer
-            folders={folders}
-            setCurrentPath={setCurrentPath}
-            currentPath={currentPath}
-            handlePageChange={handlePageChange}
-            rootMusicPath={rootMusicPath}
-            playlistItemsAdd={playlistItemsAdd}
-          />
-        )}
-        {page === 'playlists' && (
-        <Playlists
-          handlePageChange={handlePageChange}
-          selectedPlaylist={selectedPlaylist}
-          setSelectedPlaylist={setSelectedPlaylist}
-          playlists={playlists}
-          selectedPlaylistSongs={selectedPlaylistSongs}
-          playSong={playSong}
-        />
-      )}
-      </View>
-    </View>
+          )}
+        </View>
+      </View></View>
+    </ImageBackground>
   )
 }
 
 const styles = StyleSheet.create({
-  body: {
-    margin: 0,
-    //fontFamily: 'bronova-regular, Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif',
-    WebkitFontSmoothing: 'antialiased',
-    MozOsxFontSmoothing: 'grayscale',
-    //backgroundColor: '#101010',
-  },
-  code: {
-    fontFamily: 'source-code-pro, Menlo, Monaco, Consolas, "Courier New", monospace',
-  },
-  container: {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    padding: 0,
-    color: '#fff',
-    maxWidth: 480,
-    // height: '100vh',
-    textAlign: 'center',
-    justifyContent: 'center'
+  scrollView: {
+    paddingTop: 12,
+    flex: 1
   },
 });
 

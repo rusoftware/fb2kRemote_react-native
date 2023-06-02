@@ -1,6 +1,10 @@
-import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, FlatList, Dimensions, TouchableWithoutFeedback } from 'react-native';
 import { useFonts } from 'expo-font';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+import StyledText from '../customComponents/styledText';
+
+const tracklistWidth = Dimensions.get('window').width - 4
 
 const Tracklist = ({
   selectedPlaylist,
@@ -10,6 +14,8 @@ const Tracklist = ({
   playlistItemsRemove,
   currentSong,
 }) => {
+
+  const [isOpen, setIsOpen] = useState(false)
 
   const [fontsLoaded] = useFonts({
     'Bronova': require('../assets/fonts/Bronova-Regular.ttf'),
@@ -22,20 +28,28 @@ const Tracklist = ({
     return;
   }
 
+  const toggleOpen = () => {
+    setIsOpen(!isOpen)
+  }
+
   return (
-    <View style={styles.tracklistSection}>
-      <Text style={styles.playlistTitle}>
-        from{' '}
-        {selectedPlaylist
-          ? playlists.find(
-              (currentPlaylist) => currentPlaylist.id === selectedPlaylist
-            )?.title
-          : 'Seleccionar opción'}
-      </Text>
-      <View>
-        <View style={styles.tracklist}>
-          {tracklistsSongs.map((track, index) => (
-            <TouchableOpacity
+    <View style={[styles.tracklistSection, isOpen && styles.listOpen]}>
+      <TouchableWithoutFeedback onPress={toggleOpen}>
+        <View>
+          <StyledText h2 style={styles.playlistTitle}>
+            from{' '}
+            {selectedPlaylist
+              ? playlists.find(
+                  (currentPlaylist) => currentPlaylist.id === selectedPlaylist
+                )?.title
+              : 'Seleccionar opción'}
+          </StyledText>
+        </View>
+      </TouchableWithoutFeedback>
+      <FlatList
+        data={ tracklistsSongs }
+        renderItem={({ item, index }) => 
+          <View
               style={[
                 styles.trackItem,
                 index === currentSong.track &&
@@ -43,41 +57,57 @@ const Tracklist = ({
                   ? styles.selectedTrack
                   : null,
               ]}
-              onPress={() => playSong(index)}
               key={index}
             >
-              <Text style={styles.trackName}>
-                {track.columns[3]} - {track.columns[4]}
-              </Text>
-              <Text style={styles.trackInfo}>
-                {track.columns[0]} - {track.columns[1]} ({track.columns[2]})
-              </Text>
-              <TouchableOpacity
+              <TouchableWithoutFeedback onPress={() => playSong(index)}>
+                <View>
+                  <Text style={styles.trackName}>
+                    {item.columns[3]} - {item.columns[4]}
+                  </Text>
+                  <Text style={styles.trackInfo}>
+                    {item.columns[0]} - {item.columns[1]} ({item.columns[2]})
+                  </Text>
+                </View>
+              </TouchableWithoutFeedback>
+              <TouchableWithoutFeedback
                 style={styles.trackRemove}
                 onPress={() => playlistItemsRemove(index)}
               >
-                {/*<MaterialIcons name="playlist-remove" size={24} color="black" />*/}
-                <Text>remove</Text>
-              </TouchableOpacity>
-            </TouchableOpacity>
-          ))}
-        </View>
-      </View>
+
+                <MaterialCommunityIcons name="playlist-remove" size={24} color="#ebebeb" />
+              </TouchableWithoutFeedback>
+            </View>
+        }
+      />
     </View>
   );
 };
 
+const maxListHeight = Dimensions.get('screen').height - 80
+
 const styles = StyleSheet.create({
   tracklistSection: {
-    width: '100%',
-    maxHeight: '100%',
-    backgroundColor: 'rgba(45,45,45,.3)',
+    width: tracklistWidth,
+    maxWidth: tracklistWidth,
+    maxHeight: maxListHeight,
+    height: maxListHeight,
+    backgroundColor: 'rgba(45,45,45,.8)',
+    flexBasis: 120,
+    top: 0,
+    elevation: 1,
+    borderTopStartRadius: 6,
+    borderTopEndRadius: 6,
+    overflow: 'hidden',
+    alignSelf: 'center'
+  },
+  listOpen: {
+    flexBasis: 680
   },
   playlistTitle: {
     textAlign: 'right',
-    //padding: '1em 2em',
-    //fontSize: '.8em',
-    backgroundColor: 'rgba(0, 0, 0, .2)',
+    paddingHorizontal: 8,
+    paddingVertical: 6,
+    backgroundColor: 'rgba(0, 0, 0, .2)'
   },
   tracklist: {
     listStyle: 'none',
@@ -90,25 +120,26 @@ const styles = StyleSheet.create({
   trackItem: {
     display: 'flex',
     flexDirection: 'row',
-    //width: 'calc(100% - 1em)',
-    //padding: '.5em .5em .2em',
-    borderWidth: '1px 0',
+    paddingHorizontal: 4,
+    paddingVertical: 12,
+    borderTopWidth: 1,
+    borderBottomWidth: 1,
     borderColor: 'rgba(255,255,255,.1)',
     textAlign: 'left',
     lineHeight: '2em',
-    justifyContent: 'space-between',
+    justifyContent: 'space-between'
   },
   selectedTrack: {
     backgroundColor: 'rgba(0, 0, 0, .2)',
   },
   trackName: {
     flex: 7,
-    //overflow: 'hidden',
-    //lineHeight: '1.2em',
-    //color: 'black'
+    color: '#ebebeb',
+    fontSize: 16
   },
   trackInfo: {
-    //fontSize: '.7em',
+    color: '#ebebeb',
+    fontSize: 12
   },
   trackRemove: {
     flex: 1,

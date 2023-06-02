@@ -1,17 +1,18 @@
 import React from "react";
 import { 
   StyleSheet,
-  Text,
+  Alert,
   View,
   TouchableWithoutFeedback,
   Image,
   Dimensions
-} from 'react-native';
-import { useFonts } from 'expo-font';
-import { Slider } from '@miblanchard/react-native-slider';
-import placeholderImg from '../assets/img/no-cover.jpeg';
+} from 'react-native'
+import { Slider } from '@miblanchard/react-native-slider'
+import StyledText from "../customComponents/styledText"
+import { AntDesign, FontAwesome, Ionicons, MaterialIcons, Fontisto } from '@expo/vector-icons'
 
-const playerSize = Dimensions.get('window').width - 140;
+const playerSize = Dimensions.get('window').width - 30
+const windowWidth = Dimensions.get('window').width
 
 const Player = ({
   albumCover,
@@ -23,24 +24,17 @@ const Player = ({
   updateSongPosition
 }) => {
 
-  const [fontsLoaded] = useFonts({
-    'Bronova': require('../assets/fonts/Bronova-Regular.ttf'),
-    'Bronova Bold': require('../assets/fonts/Bronova-Bold.ttf'),
-    'Roboto Light': require('../assets/fonts/Roboto-Light.ttf'),
-    'Roboto': require('../assets/fonts/Roboto-Regular.ttf')
-  });
-
-  if (!fontsLoaded) {
-    return;
-  }
+  const mainAlbumArt = ( albumCover ) ? { uri: albumCover } : require('../assets/img/ice-fire.jpg')
 
   const formatTiming = (time) => {
-    const minutes = Math.floor(time / 60);
-    const seconds = Math.floor(time % 60);
-    const formattedMinutes = minutes < 10 ? `0${minutes}` : minutes;
-    const formattedSeconds = seconds < 10 ? `0${seconds}` : seconds;
+    const minutes = Math.floor(time / 60)
+    const seconds = Math.floor(time % 60)
+    const formattedMinutes = minutes < 10 ? `0${minutes}` : minutes
+    const formattedSeconds = seconds < 10 ? `0${seconds}` : seconds
     return `${formattedMinutes}:${formattedSeconds}`;
-  };
+  }
+
+  
   
   return (
     <View style={styles.playerPage}>
@@ -48,61 +42,67 @@ const Player = ({
         <View style={styles.currentlyPlaying}>
           <View style={styles.albumCover}>
             <Image 
-              source={albumCover ? {uri: albumCover} : placeholderImg} 
-              style={{ width: playerSize, height: playerSize }} />
+              source={mainAlbumArt} 
+              style={styles.albumCoverImage} />
           </View>
-
           <View style={styles.songInfo}>
-            <Text style={styles.songTitle}>{ currentSong.title }</Text>
-            <Text style={styles.songArtist}>{ currentSong.artist }</Text>
-            <Text style={styles.songArtist}>{ currentSong.album } - { currentSong.year }</Text>
+            <StyledText h1>{ currentSong.title }</StyledText>
+            <StyledText h2>{ currentSong.artist }</StyledText>
+            <StyledText h2>{ currentSong.album } - { currentSong.year }</StyledText>
           </View>
 
-          <Slider
-            minimumValue={0}
-            maximumValue={currentSong.duration}
-            value={songPosition}
-            onValueChange={(e) => {
-              const newPosition = parseInt(e.target.value, 10);
-              updateSongPosition(newPosition);
-            }}
-            style={styles.rangeInput}
-          />
-          <View style={styles.timer}>
-            <Text style={styles.trackBarText}>{formatTiming(songPosition)}</Text>
-            <Text style={styles.trackBarText}>{formatTiming(currentSong.duration)}</Text>
+          <View style={styles.progressBar}>
+            <Slider
+              minimumValue={0}
+              maximumValue={currentSong.duration}
+              value={songPosition}
+              onValueChange={(e) => {
+                const newPosition = parseInt(e.target.value, 10);
+                updateSongPosition(newPosition);
+              }}
+              style={styles.rangeInput}
+            />
+            <View style={styles.timer}>
+              <StyledText small>{formatTiming(songPosition)}</StyledText>
+              <StyledText small>{formatTiming(currentSong.duration)}</StyledText>
+            </View>
           </View>
 
           <View style={styles.playerMenu}>
-            <TouchableWithoutFeedback onPress={() => handlePageChange('playlists')}>
-              <Text>Pl</Text>
+            {/*<TouchableWithoutFeedback onPress={() => handlePageChange('playlists')}>*/}
+            <TouchableWithoutFeedback onPress={() => Alert.alert('playlists')}>
+              <FontAwesome name="music" size={16} style={styles.playerIcons} />
             </TouchableWithoutFeedback>
             
             <View style={styles.playerButtons}>
               <TouchableWithoutFeedback onPress={(event) => handlePlayerClick(event, 'previous')}>
-                <Text style={styles.secondary}>prev</Text>
+                <Fontisto name="backward" size={20} style={styles.playerIcons} />
               </TouchableWithoutFeedback>
 
-              {playing === 'stopped' ? (
-                <TouchableWithoutFeedback style={styles.mainButton} onPress={(event) => handlePlayerClick(event, 'play')}>
-                  <Text>Play</Text>
-                </TouchableWithoutFeedback>
-              ) : (
-                <TouchableWithoutFeedback style={styles.mainButton} onPress={(event) => handlePlayerClick(event, 'pause/toggle')}>
-                  {playing === 'playing' ? <Text>Pause</Text> : <Text>Play</Text>}
-                </TouchableWithoutFeedback>
-              )}
+              <View style={styles.mainButton}>
+                {playing === 'stopped' ? (
+                  <TouchableWithoutFeedback onPress={(event) => handlePlayerClick(event, 'play')}>
+                    <FontAwesome name="play" size={44} style={[styles.playerIcons, styles.playBtn]} />
+                  </TouchableWithoutFeedback>
+                ) : (
+                  <TouchableWithoutFeedback onPress={(event) => handlePlayerClick(event, 'pause/toggle')}>
+                    {playing === 'playing' ? 
+                    <AntDesign name="pause" size={46} style={styles.playerIcons} />
+                    :
+                    <Ionicons name="md-play" size={44} style={[styles.playerIcons, styles.playBtn]} />}
+                  </TouchableWithoutFeedback>
+                )}
+              </View>
 
               <TouchableWithoutFeedback onPress={(event) => handlePlayerClick(event, 'next')}>
-                <Text style={styles.secondary}>next</Text>
+                <Fontisto name="forward" size={20} style={styles.playerIcons} />
               </TouchableWithoutFeedback>
             </View>
 
             <TouchableWithoutFeedback onPress={() => handlePageChange('explorer')}>
-              <Text>ex</Text>
+              <MaterialIcons name="folder" size={16} style={styles.playerIcons}/>
             </TouchableWithoutFeedback>
           </View>
-
         </View>
       </View>
     </View>
@@ -111,101 +111,51 @@ const Player = ({
 
 const styles = StyleSheet.create({
   playerPage: {
-    width: '100%',
-    //height: '100%',
+    width: windowWidth,
+    maxWidth: windowWidth,
+    overflow: 'hidden',
+    alignSelf: 'center',
+    flex: 1
   },
   player: {
-    //height: 'calc(100% - 120px)',
     overflow: 'hidden',
     flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginVertical: 30,
-    width: '100%',
-  },
-  currentlyPlaying: {
-    width: '66%',
+    //width: '100%'
   },
   albumCover: {
+    marginTop: 30,
+    marginBottom: 16,
     width: playerSize,
-    marginVertical: 12,
-    borderRadius: 20,
+    height: playerSize,
+    backgroundColor: 'black',
+    borderTopLeftRadius: 30,
+    borderTopRightRadius: 30,
+    borderBottomLeftRadius: 30, //20,
+    borderBottomRightRadius: 30,
     overflow: 'hidden',
     shadowColor: '#000',
-    shadowOpacity: 0.3,
-    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 1,
+    shadowOffset: { width: 0, height: 6 },
     shadowRadius: 14,
-    elevation: 4,
+    elevation: 4
   },
   albumCoverImage: {
-    width: playerSize,
-    aspectRatio: 1,
+    aspectRatio: 1
+  },
+  currentlyPlaying: {
   },
   songInfo: {
-    display: 'block',
-    width: '100%',
-    height: 120,
-    overflow: 'hidden',
-    marginHorizontal: 'auto',
-    textAlign: 'left',
-    paddingLeft: 3,
-  },
-  songTitle: {
-    fontSize: 18,
-    marginVertical: 0,
-    fontFamily: 'Bronova',
-    //fontFamily: 'Roboto',
-    fontWeight: '400',
-  },
-  songArtist: {
-    fontSize: 13,
-    marginVertical: 2,
-    fontFamily: 'Roboto',
-  },
-  playerControls: {
-    width: '100%',
-  },
-  playerMenu: {
-    position: 'relative',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    width: '86%',
-    marginHorizontal: 'auto',
-  },
-  playerButtons: {
-    position: 'relative',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  mainButton: {
-    width: 60,
-    height: 60,
-    borderWidth: 1,
-    borderColor: '#ebebeb',
-    backgroundColor: 'transparent',
-    borderRadius: 30,
-    marginHorizontal: 32,
-  },
-  mainButtonIcon: {
-    color: '#ebebeb',
-  },
-  secondaryButton: {
-    backgroundColor: 'transparent',
-    borderWidth: 0,
-  },
-  secondaryButtonIcon: {
-    color: '#ebebeb',
+    paddingLeft: 3
   },
   progressBar: {
-    marginVertical: 30,
+    marginVertical: 20
   },
   rangeInput: {
     backgroundColor: '#D66D75',
     borderRadius: 8,
-    height: 7,
-    width: '86%',
+    height: 17,
     outline: 'none',
     transition: 'background 450ms ease-in',
   },
@@ -217,13 +167,40 @@ const styles = StyleSheet.create({
     backgroundColor: '#D66D75',
   },
   timer: {
-    width: '86%',
     marginHorizontal: 'auto',
+    marginTop: -10,
     flexDirection: 'row',
     justifyContent: 'space-between',
-    fontSize: 10,
-    fontFamily: 'Bronova',
+    paddingHorizontal: 3
   },
+  playerMenu: {
+    position: 'relative',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-around',
+    marginHorizontal: 'auto',
+  },
+  playerButtons: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  mainButton: {
+    marginHorizontal: 26,
+    justifyContent: 'center',
+    width: 56,
+    height: 56,
+    borderRadius: 80,
+    borderWidth: 1,
+    borderColor: '#fff',
+    alignItems: 'center'
+  },
+  playerIcons: {
+    color: '#ebebeb'
+  },
+  playBtn: {
+    paddingLeft: 5
+  }
 });
 
 export default Player;
