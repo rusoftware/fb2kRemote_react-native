@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
-import { MaterialIcons, FontAwesome, MaterialCommunityIcons } from '@expo/vector-icons';
+import { View, Text, TouchableWithoutFeedback, SectionList } from 'react-native';
+import StyledText from '../customComponents/styledText';
+import { MaterialIcons, MaterialCommunityIcons } from '@expo/vector-icons';
 
 const Explorer = ({
   handlePageChange,
@@ -23,8 +24,11 @@ const Explorer = ({
 
   const handleUpClick = () => {
     if (currentPath) {
-      const lastIndex = currentPath.lastIndexOf('/');
+      console.log(currentPath);
+      //const lastIndex = currentPath.lastIndexOf('/');
+      const lastIndex = currentPath.lastIndexOf('\\');
       const upPath = lastIndex !== -1 ? currentPath.substring(0, lastIndex) : '';
+      console.log(upPath);
       setCurrentPath(upPath);
     }
   };
@@ -47,61 +51,68 @@ const Explorer = ({
   return (
     <View style={styles.explorer}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => handlePageChange('player')}>
-          <MaterialIcons name="chevron-left" size={24} style={styles.back} />
-        </TouchableOpacity>
-        <MaterialIcons name="folder" size={32} />
+        <TouchableWithoutFeedback onPress={() => handlePageChange('player')}>
+          <MaterialIcons name="chevron-left" size={38} style={styles.back} color="#ebebeb" />
+        </TouchableWithoutFeedback>
+        <MaterialIcons name="folder" size={32} color="#ebebeb" />
       </View>
 
       <View style={styles.navigationFolders}>
         {isRoot ? (
           <>
-            {Object.keys(groupedFolders).map((letter) => (
-              <View key={letter}>
-                <Text style={styles.letter}>{letter}</Text>
-                <View style={styles.artistsList}>
-                  {groupedFolders[letter].map((folder) => (
-                    <TouchableOpacity
-                      key={folder.path}
-                      onPress={() => handleFolderClick(folder.path)}
-                      style={styles.artist}
-                    >
-                      <Text style={styles.artistName}>{folder.name}</Text>
-                    </TouchableOpacity>
-                  ))}
-                </View>
-              </View>
-            ))}
+            <SectionList
+              sections={Object.entries(groupedFolders).map(([letter, data]) => ({
+                title: letter,
+                data: data
+              }))}
+              keyExtractor={(item, index) => item.path + index}
+              renderItem={({ item }) => (
+                <TouchableWithoutFeedback
+                  onPress={() => handleFolderClick(item.path)}
+                  style={styles.artist}
+                >
+                  <View>
+                    <StyledText h2 style={styles.artistName}>{item.name}</StyledText>
+                  </View>
+                </TouchableWithoutFeedback>
+              )}
+              renderSectionHeader={({ section: { title } }) => (
+                <StyledText h1 style={styles.letter}>{title}</StyledText>
+              )}
+            />
           </>
         ) : (
           <>
-            <Text style={styles.title}>Albums</Text>
-            <TouchableOpacity onPress={handleUpClick}>
-              <FontAwesome name="arrow-left" size={24} style={styles.arrowLeft} />
-            </TouchableOpacity>
+            <View style={styles.container}>
+              <StyledText h2>Albums</StyledText>
+              <TouchableWithoutFeedback onPress={handleUpClick}>
+                <MaterialIcons name="arrow-back" size={24} style={{marginTop: 1}} color="#ebebeb" />  
+              </TouchableWithoutFeedback>
 
-            <View style={styles.artistsList}>
               {folders.map((folder) => (
                 <React.Fragment key={folder.path}>
                   {folder.type === 'D' && (
-                    <TouchableOpacity
-                      onPress={() => handleFolderClick(folder.path)}
-                      style={styles.artist}
-                    >
-                      <Text style={styles.artistName}>{folder.name}</Text>
-                      <TouchableOpacity onPress={(ev) => playlistItemsAdd(ev, folder.path, true, true)}>
-                        <MaterialCommunityIcons name="playlist-play" size={24} style={styles.controls} />
-                      </TouchableOpacity>
-                    </TouchableOpacity>
+                    <TouchableWithoutFeedback onPress={() => handleFolderClick(folder.path)}>
+                      <View>
+                        <StyledText style={styles.folderName}>{folder.name}</StyledText>
+                        {/*<MdPlaylistPlay size={24} onPress={(ev) => playlistItemsAdd(ev, folder.path, true, true)} />*/}
+                      </View>
+                    </TouchableWithoutFeedback>
                   )}
 
                   {folder.type === 'F' && (
-                    <TouchableOpacity onPress={(ev) => playlistItemsAdd(ev, folder.path, true, true)} style={styles.artist}>
-                      <Text style={styles.artistName}>{folder.name}</Text>
-                      <TouchableOpacity onPress={(ev) => playlistItemsAdd(ev, folder.path, false, false)}>
-                        <MaterialIcons name="playlist-add" size={24} style={styles.controls} />
-                      </TouchableOpacity>
-                    </TouchableOpacity>
+                    <>
+                      <TouchableWithoutFeedback onPress={(ev) => playlistItemsAdd(ev, folder.path, true, true)}>
+                        <View>
+                          <StyledText style={styles.fileName}>{folder.name}</StyledText>
+                        </View>
+                      </TouchableWithoutFeedback>
+                      <TouchableWithoutFeedback onPress={(ev) => playlistItemsAdd(ev, folder.path, false, false)}>
+                        <View>
+                          <MaterialCommunityIcons name="playlist-plus" size={24} color="#ebebeb" />
+                        </View>
+                      </TouchableWithoutFeedback>
+                    </>
                   )}
                 </React.Fragment>
               ))}
@@ -117,26 +128,23 @@ const styles = {
   /*explorer: {
     flex: 1,
     width: '100%'
-  },
+  },*/
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     padding: 16
   },
   back: {
-    color: '#000',
-    fontSize: 24
+    color: '#ebebeb',
+    //fontSize: 24
   },
   navigationFolders: {
-    flex: 1,
     paddingLeft: 12,
     paddingRight: 12
   },
   letter: {
     marginTop: 14,
-    marginBottom: 0,
-    fontSize: 16,
-    fontWeight: 'bold'
+    marginBottom: 0
   },
   artistsList: {
     marginTop: 10
@@ -152,7 +160,7 @@ const styles = {
   artistName: {
     flex: 1,
     overflow: 'hidden',
-    fontSize: 16
+    //fontSize: 16
   },
   controls: {
     marginLeft: 8
@@ -165,7 +173,7 @@ const styles = {
   },
   arrowLeft: {
     marginTop: 20
-  }*/
+  }
 };
 
 export default Explorer;
