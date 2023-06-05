@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { View, Modal, Dimensions, Image, TouchableWithoutFeedback, ScrollView } from 'react-native';
-import { MaterialIcons, Feather } from '@expo/vector-icons';
+import { MaterialIcons, MaterialCommunityIcons } from '@expo/vector-icons';
 import StyledText from '../customComponents/styledText';
 import placeholderImg from '../assets/img/no-cover.jpeg';
 
@@ -57,8 +57,8 @@ const Playlists = ({
                   ]}
                   onPress={() => handleOptionClick(pl.id)}
                 >
-                  <View>
-                    <StyledText>{pl.title}</StyledText>
+                  <View style={styles.dropdownItem}>
+                    <StyledText big>{pl.title}</StyledText>
                   </View>
                 </TouchableWithoutFeedback>
               );
@@ -78,15 +78,14 @@ const Playlists = ({
                 <View key={albumKey}>
                   <View style={styles.albumHeader}>
                     <View style={styles.cover}>
-                      
                       <Image 
                         source={albumData.coverArt._j ? {uri: albumData.coverArt._j} : placeholderImg} 
                         style={styles.coverImage} 
                         resizeMode='cover' />
                     </View>
                     <View style={styles.title}>
-                      <StyledText style={styles.artistName}>{artist}</StyledText>
-                      <StyledText style={styles.albumName}>{albumData.name} ({albumData.year})</StyledText>
+                      <StyledText h2 style={styles.artistName}>{artist}</StyledText>
+                      <StyledText h1 style={styles.albumName}>{albumData.name} ({albumData.year})</StyledText>
                     </View>
                   </View>
 
@@ -98,13 +97,13 @@ const Playlists = ({
                       return (
                         <View key={index} style={styles.track}>
                           <TouchableWithoutFeedback onPress={() => playSong(songIndex)}>
-                            <View>
-                              <StyledText style={styles.trackName}>{songNumber} - {songName}</StyledText>
+                            <View style={styles.trackName}>
+                              <StyledText h2>{songNumber} - {songName}</StyledText>
                             </View>
                           </TouchableWithoutFeedback>
                           <TouchableWithoutFeedback onPress={() => console.log('remove')}>
-                            <View>
-                              <StyledText>Remove</StyledText>
+                            <View style={styles.trackRemove}>
+                              <MaterialCommunityIcons name="playlist-remove" size={24} color="#ebebeb" />
                             </View>
                           </TouchableWithoutFeedback>
                         </View>
@@ -123,81 +122,67 @@ const Playlists = ({
 };
 
 const styles = {
-  playlistsSection: {
-    
-  },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     paddingHorizontal: 6,
     marginTop: 50,
   },
-  back: {
-    // Add your styles for the back icon
-  },
-  dropdown: {
-    // Add your styles for the dropdown container
-  },
   dropdownToggle: {
     paddingTop: 8,
     paddingRight: 8
-  },
-  dropdownText: {
-    // Add your styles for the dropdown toggle text
   },
   dropdownMenu: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    backgroundColor: 'rgba(0, 0, 0, 0.8)',
   },
   dropdownItem: {
-    // Add your styles for the dropdown item
-  },
-  selected: {
-    backgroundColor: '#00000066'
-    // Add your styles for the selected dropdown item
+    marginBottom: 14
   },
   playlistsContainer: {
-    maxHeight: Dimensions.get('window').height - 74
-    // Add your styles for the playlists container
+    maxHeight: Dimensions.get('window').height - 74,
+    paddingHorizontal: 12,
   },
   albumHeader: {
     flexDirection: 'row',
-    // Add your styles for the album header
+    marginTop: 26,
+    marginBottom: 6,
+    paddingBottom: 6,
+    borderBottomWidth: 1,
+    borderColor: '#ebebeb',
+    alignItems: 'center',
+    maxWidth: '100%'
   },
   cover: {
-    // Add your styles for the cover container
+    marginRight: 15,
+    marginTop: 4
   },
   coverImage: {
     width: 45,
-    height: 45,
-    // Add your styles for the cover image
+    height: 45
   },
   title: {
-    // Add your styles for the title container
-  },
-  artistName: {
-    // Add your styles for the artist name
-  },
-  albumName: {
-    // Add your styles for the album name
-  },
-  playlists: {
-    // Add your styles for the playlists container
+    width: Dimensions.get('window').width - 84 // 45 image + 15 margin image + 24 (paddingHorizontal 12)
   },
   track: {
+    width: '100%',
     flexDirection: 'row',
-    alignItems: 'center',
-    // Add your styles for each track item
+    borderBottomWidth: 1,
+    borderBottomColor: '#ebebeb',
+    paddingVertical: 8,
+    minHeight: 48,
+    justifyContent: 'space-between'
   },
   trackName: {
-    //flex: 1,
-    // Add your styles for the track name
+    flexGrow: 1,
   },
   trackRemove: {
-    // Add your styles for the track remove icon
-  },
+    alignSelf: 'center',
+    textAlign: 'right',
+    marginLeft: 8
+  }
 };
 
 export default Playlists;
