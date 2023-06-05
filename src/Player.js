@@ -33,8 +33,6 @@ const Player = ({
     const formattedSeconds = seconds < 10 ? `0${seconds}` : seconds
     return `${formattedMinutes}:${formattedSeconds}`;
   }
-
-  
   
   return (
     <View style={styles.playerPage}>
@@ -69,38 +67,40 @@ const Player = ({
           </View>
 
           <View style={styles.playerMenu}>
-            {/*<TouchableWithoutFeedback onPress={() => handlePageChange('playlists')}>*/}
-            <TouchableWithoutFeedback onPress={() => Alert.alert('playlists')}>
-              <FontAwesome name="music" size={16} style={styles.playerIcons} />
+            <TouchableWithoutFeedback onPress={() => handlePageChange('playlists')}>
+              <View>
+                <FontAwesome name="music" size={18} style={styles.playerIcons} />
+              </View>
             </TouchableWithoutFeedback>
             
             <View style={styles.playerButtons}>
               <TouchableWithoutFeedback onPress={(event) => handlePlayerClick(event, 'previous')}>
-                <Fontisto name="backward" size={20} style={styles.playerIcons} />
+                <Fontisto name="backward" size={22} style={styles.playerIcons} />
               </TouchableWithoutFeedback>
 
               <View style={styles.mainButton}>
                 {playing === 'stopped' ? (
                   <TouchableWithoutFeedback onPress={(event) => handlePlayerClick(event, 'play')}>
-                    <FontAwesome name="play" size={44} style={[styles.playerIcons, styles.playBtn]} />
+                    <Ionicons name="md-play" size={40} style={[styles.playerIcons, styles.playBtn]} />
                   </TouchableWithoutFeedback>
                 ) : (
                   <TouchableWithoutFeedback onPress={(event) => handlePlayerClick(event, 'pause/toggle')}>
                     {playing === 'playing' ? 
-                    <AntDesign name="pause" size={46} style={styles.playerIcons} />
+                      <AntDesign name="pause" size={42} style={styles.playerIcons} />
                     :
-                    <Ionicons name="md-play" size={44} style={[styles.playerIcons, styles.playBtn]} />}
+                      <Ionicons name="md-play" size={40} style={[styles.playerIcons, styles.playBtn]} />
+                    }
                   </TouchableWithoutFeedback>
                 )}
               </View>
 
               <TouchableWithoutFeedback onPress={(event) => handlePlayerClick(event, 'next')}>
-                <Fontisto name="forward" size={20} style={styles.playerIcons} />
+                <Fontisto name="forward" size={22} style={styles.playerIcons} />
               </TouchableWithoutFeedback>
             </View>
 
             <TouchableWithoutFeedback onPress={() => handlePageChange('explorer')}>
-              <MaterialIcons name="folder" size={16} style={styles.playerIcons}/>
+              <MaterialIcons name="folder" size={18} style={styles.playerIcons}/>
             </TouchableWithoutFeedback>
           </View>
         </View>

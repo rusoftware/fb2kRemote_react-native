@@ -2,7 +2,7 @@ import React from "react";
 import { StyleSheet, Text } from "react-native";
 import { useFonts } from 'expo-font';
 
-export default function StyledText ({h1, h2, small, bold, style, children}) {
+export default function StyledText ({h1, h2, big, small, bold, style, children}) {
 
   const [fontsLoaded] = useFonts({
     'Bronova': require('../assets/fonts/Bronova-Regular.ttf'),
@@ -19,6 +19,7 @@ export default function StyledText ({h1, h2, small, bold, style, children}) {
     styles.text,
     h1 && styles.h1,
     h2 && styles.h2,
+    big && styles.big,
     small && styles.small,
     bold && styles.bold,
     style
@@ -52,6 +53,9 @@ const styles = StyleSheet.create({
     marginVertical: 2,
     fontFamily: 'Roboto',
     color: '#ebebebcc'
+  },
+  big: {
+    fontSize: 24,
   },
   small: {
     fontSize: 10,

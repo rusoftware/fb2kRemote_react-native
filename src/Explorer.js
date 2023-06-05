@@ -1,7 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableWithoutFeedback, SectionList } from 'react-native';
-import StyledText from '../customComponents/styledText';
-import { MaterialIcons, MaterialCommunityIcons } from '@expo/vector-icons';
+import React, { useState, useEffect } from 'react'
+import { View, Dimensions, TouchableWithoutFeedback, SectionList, ScrollView } from 'react-native'
+import StyledText from '../customComponents/styledText'
+import { MaterialIcons, MaterialCommunityIcons } from '@expo/vector-icons'
+
+const screentWidth = Dimensions.get('window').width
 
 const Explorer = ({
   handlePageChange,
@@ -11,7 +13,7 @@ const Explorer = ({
   rootMusicPath,
   playlistItemsAdd
 }) => {
-  const [isRoot, setIsRoot] = useState(true);
+  const [isRoot, setIsRoot] = useState(true)
 
   useEffect(() => {
     const isThisRoot = !currentPath || currentPath === rootMusicPath;
@@ -24,11 +26,9 @@ const Explorer = ({
 
   const handleUpClick = () => {
     if (currentPath) {
-      console.log(currentPath);
       //const lastIndex = currentPath.lastIndexOf('/');
       const lastIndex = currentPath.lastIndexOf('\\');
       const upPath = lastIndex !== -1 ? currentPath.substring(0, lastIndex) : '';
-      console.log(upPath);
       setCurrentPath(upPath);
     }
   };
@@ -52,9 +52,11 @@ const Explorer = ({
     <View style={styles.explorer}>
       <View style={styles.header}>
         <TouchableWithoutFeedback onPress={() => handlePageChange('player')}>
-          <MaterialIcons name="chevron-left" size={38} style={styles.back} color="#ebebeb" />
+          <View>
+            <MaterialIcons name="chevron-left" size={38} style={styles.back} color="#ebebeb" />
+          </View>
         </TouchableWithoutFeedback>
-        <MaterialIcons name="folder" size={32} color="#ebebeb" />
+        <StyledText style={styles.textExplorer}>Explorer</StyledText>
       </View>
 
       <View style={styles.navigationFolders}>
@@ -67,24 +69,21 @@ const Explorer = ({
               }))}
               keyExtractor={(item, index) => item.path + index}
               renderItem={({ item }) => (
-                <TouchableWithoutFeedback
-                  onPress={() => handleFolderClick(item.path)}
-                  style={styles.artist}
-                >
-                  <View>
+                <TouchableWithoutFeedback onPress={() => handleFolderClick(item.path)}>
+                  <View style={styles.artist}>
                     <StyledText h2 style={styles.artistName}>{item.name}</StyledText>
                   </View>
                 </TouchableWithoutFeedback>
               )}
               renderSectionHeader={({ section: { title } }) => (
-                <StyledText h1 style={styles.letter}>{title}</StyledText>
+                <StyledText big style={styles.letter}>{title}</StyledText>
               )}
             />
           </>
         ) : (
           <>
-            <View style={styles.container}>
-              <StyledText h2>Albums</StyledText>
+            <ScrollView style={styles.container}>
+              <StyledText big>Albums</StyledText>
               <TouchableWithoutFeedback onPress={handleUpClick}>
                 <MaterialIcons name="arrow-back" size={24} style={{marginTop: 1}} color="#ebebeb" />  
               </TouchableWithoutFeedback>
@@ -92,31 +91,45 @@ const Explorer = ({
               {folders.map((folder) => (
                 <React.Fragment key={folder.path}>
                   {folder.type === 'D' && (
-                    <TouchableWithoutFeedback onPress={() => handleFolderClick(folder.path)}>
-                      <View>
-                        <StyledText style={styles.folderName}>{folder.name}</StyledText>
-                        {/*<MdPlaylistPlay size={24} onPress={(ev) => playlistItemsAdd(ev, folder.path, true, true)} />*/}
+                    <View style={[styles.row, styles.artist]}>
+                      <View style={styles.artistName}>
+                        <TouchableWithoutFeedback onPress={() => handleFolderClick(folder.path)}>
+                          <View>
+                            <StyledText>{folder.name}</StyledText>
+                          </View>
+                        </TouchableWithoutFeedback>
                       </View>
-                    </TouchableWithoutFeedback>
+                      <View style={styles.controls}>
+                        <TouchableWithoutFeedback onPress={(ev) => playlistItemsAdd(ev, folder.path, true, true)}>
+                          <View>
+                            <MaterialCommunityIcons name="playlist-play" size={24} color="#ebebeb" />
+                          </View>
+                        </TouchableWithoutFeedback>
+                      </View>
+                    </View>
                   )}
 
                   {folder.type === 'F' && (
-                    <>
-                      <TouchableWithoutFeedback onPress={(ev) => playlistItemsAdd(ev, folder.path, true, true)}>
-                        <View>
-                          <StyledText style={styles.fileName}>{folder.name}</StyledText>
-                        </View>
-                      </TouchableWithoutFeedback>
-                      <TouchableWithoutFeedback onPress={(ev) => playlistItemsAdd(ev, folder.path, false, false)}>
-                        <View>
-                          <MaterialCommunityIcons name="playlist-plus" size={24} color="#ebebeb" />
-                        </View>
-                      </TouchableWithoutFeedback>
-                    </>
+                    <View style={[styles.row, styles.artist]}>
+                      <View  style={styles.fileName}>
+                        <TouchableWithoutFeedback onPress={(ev) => playlistItemsAdd(ev, folder.path, true, true)}>
+                          <View>
+                            <StyledText>{folder.name}</StyledText>
+                          </View>
+                        </TouchableWithoutFeedback>
+                      </View>
+                      <View style={styles.controls}>
+                        <TouchableWithoutFeedback onPress={(ev) => playlistItemsAdd(ev, folder.path, false, false)}>
+                          <View>
+                            <MaterialCommunityIcons name="playlist-plus" size={24} color="#ebebeb" />
+                          </View>
+                        </TouchableWithoutFeedback>
+                      </View>
+                    </View>
                   )}
                 </React.Fragment>
               ))}
-            </View>
+            </ScrollView>
           </>
         )}
       </View>
@@ -125,29 +138,26 @@ const Explorer = ({
 };
 
 const styles = {
-  /*explorer: {
-    flex: 1,
-    width: '100%'
-  },*/
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    padding: 16
+    paddingHorizontal: 6,
+    marginTop: 50
   },
-  back: {
-    color: '#ebebeb',
-    //fontSize: 24
+  textExplorer: {
+    paddingTop: 8
+  },
+  container: {
+    marginTop: 20,
+    maxHeight: Dimensions.get('window').height - 100
   },
   navigationFolders: {
     paddingLeft: 12,
     paddingRight: 12
   },
   letter: {
-    marginTop: 14,
+    marginTop: 20,
     marginBottom: 0
-  },
-  artistsList: {
-    marginTop: 10
   },
   artist: {
     flexDirection: 'row',
@@ -155,14 +165,21 @@ const styles = {
     borderBottomWidth: 1,
     borderBottomColor: '#ebebeb',
     paddingVertical: 8,
-    height: 48
+    minHeight: 48
+  },
+  row: {
+    width: '100%',
+    flexDirection: 'row'
   },
   artistName: {
-    flex: 1,
-    overflow: 'hidden',
-    //fontSize: 16
+    flexGrow: 1
+  },
+  fileName: {
+    flexGrow: 1
   },
   controls: {
+    alignSelf: 'center',
+    textAlign: 'right',
     marginLeft: 8
   },
   title: {

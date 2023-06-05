@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, Image, TouchableOpacity } from 'react-native';
-import { MaterialCommunityIcons, Feather } from '@expo/vector-icons';
+import { View, Modal, Dimensions, Image, TouchableWithoutFeedback, ScrollView } from 'react-native';
+import { MaterialIcons, Feather } from '@expo/vector-icons';
+import StyledText from '../customComponents/styledText';
 import placeholderImg from '../assets/img/no-cover.jpeg';
 
 const Playlists = ({
@@ -43,46 +44,51 @@ const Playlists = ({
   return (
     <View style={styles.playlistsSection}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => handlePageChange('player')}>
-          <Text>patra</Text>{/*<Text><Feather name="chevron-left" size={24} style={styles.back} /></Text>*/}
-        </TouchableOpacity>
-        {/*<MaterialCommunityIcons name="music-note-list" size={32} />*/}
-      </View>
-
-      <View style={styles.dropdown}>
-        <TouchableOpacity style={styles.dropdownToggle} onPress={toggleDropdown}>
-          <Text style={styles.dropdownText}>
-            {selectedPlaylist
-              ? `from: ${playlists.find((currentPlaylist) => currentPlaylist.id === selectedPlaylist)?.title}`
-              : 'Seleccionar opción'}
-          </Text>
-        </TouchableOpacity>
-
-        {isOpen && (
-          <View style={styles.dropdownMenu}>
-            {playlists.map((pl) => {
-              if (pl.id !== selectedPlaylist) {
-                return (
-                  <TouchableOpacity
-                    key={pl.id}
-                    style={[
-                      styles.dropdownItem,
-                      selectedPlaylist === pl.id ? styles.selected : null,
-                    ]}
-                    onPress={() => handleOptionClick(pl.id)}
-                  >
-                    <Text>{pl.title}</Text>
-                  </TouchableOpacity>
-                );
-              } else {
-                return null;
-              }
-            })}
+        <TouchableWithoutFeedback onPress={() => handlePageChange('player')}>
+          <View>
+            <MaterialIcons name="chevron-left" size={38} style={styles.back} color="#ebebeb" />
           </View>
-        )}
+        </TouchableWithoutFeedback>
+        
+        <TouchableWithoutFeedback onPress={toggleDropdown}>
+          <View style={styles.dropdownToggle}>
+            <StyledText style={styles.dropdownText}>
+              {selectedPlaylist
+                ? `from: ${playlists.find((currentPlaylist) => currentPlaylist.id === selectedPlaylist)?.title}`
+                : 'Seleccionar opción'}
+            </StyledText>
+          </View>
+        </TouchableWithoutFeedback>
       </View>
 
-      <View style={styles.playlistsContainer}>
+      <Modal visible={isOpen} animationType="slide" transparent>
+        <TouchableWithoutFeedback  onPress={toggleDropdown}>
+        <View style={styles.dropdownMenu}>
+          {playlists.map((pl) => {
+            if (pl.id !== selectedPlaylist) {
+              return (
+                <TouchableWithoutFeedback
+                  key={pl.id}
+                  style={[
+                    styles.dropdownItem,
+                    selectedPlaylist === pl.id ? styles.selected : null,
+                  ]}
+                  onPress={() => handleOptionClick(pl.id)}
+                >
+                  <View>
+                    <StyledText>{pl.title}</StyledText>
+                  </View>
+                </TouchableWithoutFeedback>
+              );
+            } else {
+              return null;
+            }
+          })}
+        </View>
+        </TouchableWithoutFeedback>
+      </Modal>
+
+      <ScrollView style={styles.playlistsContainer}>
         {Object.entries(selectedPlaylistSongs).map(([artist, albums]) => (
           <View key={artist}>
             {Object.entries(albums).map(([albumKey, albumData]) => {
@@ -90,7 +96,7 @@ const Playlists = ({
                 <View key={albumKey}>
                   <View style={styles.albumHeader}>
                     <View style={styles.cover}>
-                      <Text>{JSON.stringify(coverArtURL)}</Text>
+                      <StyledText>{JSON.stringify(coverArtURL)}</StyledText>
                       <Image
                         source={coverArtURL[albumKey] ? {uri: coverArtURL[albumKey]} : placeholderImg}
                         style={styles.coverImage}
@@ -98,8 +104,8 @@ const Playlists = ({
                       />
                     </View>
                     <View style={styles.title}>
-                      <Text style={styles.artistName}>{artist}</Text>
-                      <Text style={styles.albumName}>{albumData.name} ({albumData.year})</Text>
+                      <StyledText style={styles.artistName}>{artist}</StyledText>
+                      <StyledText style={styles.albumName}>{albumData.name} ({albumData.year})</StyledText>
                     </View>
                   </View>
 
@@ -109,12 +115,16 @@ const Playlists = ({
                       const songName = Object.values(song)[1];
                       return (
                         <View key={index} style={styles.track}>
-                          <TouchableOpacity onPress={() => playSong(index)}>
-                            <Text style={styles.trackName}>{songNumber} - {songName}</Text>
-                          </TouchableOpacity>
-                          <TouchableOpacity onPress={() => console.log('remove')}>
-                            <Text>Remove</Text>
-                          </TouchableOpacity>
+                          <TouchableWithoutFeedback onPress={() => playSong(index)}>
+                            <View>
+                              <StyledText style={styles.trackName}>{songNumber} - {songName}</StyledText>
+                            </View>
+                          </TouchableWithoutFeedback>
+                          <TouchableWithoutFeedback onPress={() => console.log('remove')}>
+                            <View>
+                              <StyledText>Remove</StyledText>
+                            </View>
+                          </TouchableWithoutFeedback>
                         </View>
                       );
                     })}
@@ -124,21 +134,21 @@ const Playlists = ({
             })}
           </View>
         ))}
-      </View>
+      </ScrollView>
+        
     </View>
   );
 };
 
 const styles = {
   playlistsSection: {
-    //flex: 1,
-    // Add your styles for the section container
+    
   },
   header: {
-    /*flexDirection: 'row',
+    flexDirection: 'row',
     justifyContent: 'space-between',
-    padding: 16,*/
-    // Add your styles for the header
+    paddingHorizontal: 6,
+    marginTop: 50,
   },
   back: {
     // Add your styles for the back icon
@@ -147,22 +157,27 @@ const styles = {
     // Add your styles for the dropdown container
   },
   dropdownToggle: {
-    // Add your styles for the dropdown toggle button
+    paddingTop: 8,
+    paddingRight: 8
   },
   dropdownText: {
     // Add your styles for the dropdown toggle text
   },
   dropdownMenu: {
-    // Add your styles for the dropdown menu
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   dropdownItem: {
     // Add your styles for the dropdown item
   },
   selected: {
+    backgroundColor: '#00000066'
     // Add your styles for the selected dropdown item
   },
   playlistsContainer: {
-    flex: 1,
+    maxHeight: Dimensions.get('window').height - 74
     // Add your styles for the playlists container
   },
   albumHeader: {
@@ -195,7 +210,7 @@ const styles = {
     // Add your styles for each track item
   },
   trackName: {
-    flex: 1,
+    //flex: 1,
     // Add your styles for the track name
   },
   trackRemove: {
