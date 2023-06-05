@@ -13,7 +13,6 @@ const Playlists = ({
   playSong
 }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [coverArtURL, setCoverArtURL] = useState({});
 
   const toggleDropdown = () => {
     setIsOpen(!isOpen);
@@ -23,23 +22,6 @@ const Playlists = ({
     setSelectedPlaylist(option);
     setIsOpen(false);
   };
-
-  //useEffect(() => console.log(coverArtURL), [coverArtURL, selectedPlaylistSongs])
-
-  useEffect(() => {
-    if (selectedPlaylistSongs) {
-      Object.entries(selectedPlaylistSongs).forEach(([artist, albums]) => {
-        Object.entries(albums).forEach(([albumKey, albumData]) => {
-          albumData.coverArt.then((url) => {
-            setCoverArtURL((prev) => ({
-              ...prev,
-              [albumKey]: url,
-            }));
-          });
-        });
-      });
-    }
-  }, [selectedPlaylistSongs]);
 
   return (
     <View style={styles.playlistsSection}>
@@ -96,12 +78,11 @@ const Playlists = ({
                 <View key={albumKey}>
                   <View style={styles.albumHeader}>
                     <View style={styles.cover}>
-                      <StyledText>{JSON.stringify(coverArtURL)}</StyledText>
-                      <Image
-                        source={coverArtURL[albumKey] ? {uri: coverArtURL[albumKey]} : placeholderImg}
-                        style={styles.coverImage}
-                        resizeMode="cover"
-                      />
+                      
+                      <Image 
+                        source={albumData.coverArt._j ? {uri: albumData.coverArt._j} : placeholderImg} 
+                        style={styles.coverImage} 
+                        resizeMode='cover' />
                     </View>
                     <View style={styles.title}>
                       <StyledText style={styles.artistName}>{artist}</StyledText>
@@ -113,9 +94,10 @@ const Playlists = ({
                     {Object.values(albumData.songs).map((song, index) => {
                       const songNumber = Object.values(song)[0];
                       const songName = Object.values(song)[1];
+                      const songIndex = Object.values(song)[2];
                       return (
                         <View key={index} style={styles.track}>
-                          <TouchableWithoutFeedback onPress={() => playSong(index)}>
+                          <TouchableWithoutFeedback onPress={() => playSong(songIndex)}>
                             <View>
                               <StyledText style={styles.trackName}>{songNumber} - {songName}</StyledText>
                             </View>

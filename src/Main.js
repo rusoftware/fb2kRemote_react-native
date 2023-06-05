@@ -69,12 +69,13 @@ const Main = () => {
         const data = await response.json();
         setTracklistsSongs(data.playlistItems.items);
 
-        const groupedData = [];
+        const groupedData = {};
+        
         const getMiniArt = async (track) => {
           try {
-            const response = await fetch(`${API}api/artwork/${selectedPlaylist}/${track}`);
+            const response = await fetch(`${API}/api/artwork/${selectedPlaylist}/${track}`);
             if (response.ok) {
-              const coverURL = response.url;
+              const coverURL = `${response.url}?ts=${Date.now()}`;
               return(coverURL);
             }
           } catch (error) {
@@ -84,16 +85,15 @@ const Main = () => {
 
         data.playlistItems.items.forEach((item, index) => {
           const [artist, album, year, trackNumber, songName] = item.columns;
+          const albumKey = `${year} - ${album}`;
 
           if (!groupedData[artist]) {
             groupedData[artist] = {};
           }
 
-          const albumKey = `${year} - ${album}`;
-
           if (!groupedData[artist][albumKey]) {
             groupedData[artist][albumKey] = {
-              coverArt: getMiniArt(index), // promise URL that will be resolved asyncronically in the component
+              coverArt: getMiniArt( index ), // promise URL that will be resolved asyncronically in the component
               name: album,
               year: year,
               songs: []
@@ -102,7 +102,8 @@ const Main = () => {
 
           groupedData[artist][albumKey]['songs'].push({
             trackNumber,
-            songName
+            songName,
+            songIndex: index
           });
         });
 
@@ -246,7 +247,7 @@ const Main = () => {
         const response = await fetch(`${API}/api/artwork/${currentSong.playlistId}/${currentSong.track}`);
 
         if (response.ok) {
-          const coverURL = response.url;
+          const coverURL = `${response.url}?ts=${Date.now()}`;
           setAlbumCover(coverURL);
         } else {
           console.log('Network response was not ok');
