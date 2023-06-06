@@ -93,7 +93,7 @@ const Main = () => {
 
           if (!groupedData[artist][albumKey]) {
             groupedData[artist][albumKey] = {
-              coverArt: getMiniArt( index ), // promise URL that will be resolved asyncronically in the component
+              coverArt: getMiniArt( index ),
               name: album,
               year: year,
               songs: []

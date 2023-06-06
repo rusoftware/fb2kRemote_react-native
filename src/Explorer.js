@@ -172,10 +172,12 @@ const styles = {
     flexDirection: 'row'
   },
   artistName: {
-    flexGrow: 1
+    flexGrow: 1,
+    maxWidth: Dimensions.get('window').width - 53
   },
   fileName: {
-    flexGrow: 1
+    flexGrow: 1,
+    maxWidth: Dimensions.get('window').width - 53
   },
   controls: {
     alignSelf: 'center',
