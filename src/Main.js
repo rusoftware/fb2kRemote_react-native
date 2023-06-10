@@ -343,18 +343,10 @@ const Main = () => {
   }, [currentPath, rootMusicPath])
 
   useEffect(() => {
-    //const eventSource = new RNEventSource(`${API}/api/query/events?${queryString}`)
     const updatesSource = new RNEventSource(`${API}/api/query/updates?${queryString}`)
 
-    /*const handleEventMessage = (event) => {
-      const eventData = JSON.parse(event.data)
-      if (eventData && eventData.player && eventData.player.activeItem) {
-        console.log('event', event.type)
-        console.log('event', eventData)
-      } else {
-        console.log("doesn't work / EVENT: ", event)
-      }
-    };*/
+    // api/query/events is the other endpoint to create eventSource, but there's no documentation at all
+    // const eventSource = new RNEventSource(`${API}/api/query/events?${queryString}`)
 
     const handleUpdatesMessage = update => {
       const updateData = JSON.parse(update.data);
@@ -363,19 +355,16 @@ const Main = () => {
       }
     };
 
-    //eventSource.addEventListener('message', handleEventMessage)
     updatesSource.addEventListener('message', handleUpdatesMessage)
 
     return () => {
-      //eventSource.removeEventListener('message', handleEventMessage)
-      updatesSource.removeEventListener('message', handleUpdatesMessage)
-      //eventSource.close()
+      updatesSource.removeAllListeners()
       updatesSource.close()
     };
 
   }, [])
 
-  const imgBg = (albumCover) ? {uri: albumCover} : require('../assets/img/ice-fire.jpg')
+  const imgBg = ( albumCover ) ? { uri: albumCover } : require('../assets/img/album-bg.png')
 
   return (
     <ImageBackground source={ imgBg } resizeMode="cover" blurRadius={20} style={{flex: 1}}>

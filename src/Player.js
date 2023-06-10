@@ -5,7 +5,8 @@ import {
   View,
   TouchableWithoutFeedback,
   Image,
-  Dimensions
+  Dimensions,
+  ImageBackground
 } from 'react-native'
 import { Slider } from '@miblanchard/react-native-slider'
 import StyledText from "../customComponents/styledText"
@@ -24,8 +25,6 @@ const Player = ({
   updateSongPosition
 }) => {
 
-  const mainAlbumArt = ( albumCover ) ? { uri: albumCover } : require('../assets/img/ice-fire.jpg')
-
   const formatTiming = (time) => {
     const minutes = Math.floor(time / 60)
     const seconds = Math.floor(time % 60)
@@ -39,9 +38,11 @@ const Player = ({
       <View style={styles.player}>
         <View style={styles.currentlyPlaying}>
           <View style={styles.albumCover}>
+          <ImageBackground source={ require('../assets/img/album-bg.png') } resizeMode="cover" style={{flex: 1}}>
             <Image 
-              source={mainAlbumArt} 
+              source={{ uri: albumCover }}
               style={styles.albumCoverImage} />
+            </ImageBackground>
           </View>
           <View style={styles.songInfo}>
             <StyledText h1>{ currentSong.title }</StyledText>
