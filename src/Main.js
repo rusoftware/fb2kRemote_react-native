@@ -5,6 +5,7 @@ import Player from './Player';
 import Tracklist from './Tracklist';
 import Explorer from './Explorer';
 import Playlists from './Playlists';
+import RNEventSource from 'react-native-event-source';
 
 const Main = () => {
 
@@ -31,6 +32,14 @@ const Main = () => {
   const [showToast, setShowToast] = useState(false);
 
   const currentPositionRef = useRef(songPosition);
+
+  const params = {
+    player: true,
+    playlists: true,
+    trcolumns: ['%artist%', '%album%', '%title%', '%year%', '%tracknumber%']
+  };
+
+  const queryString = new URLSearchParams(params).toString();
   
   const showToastMessage = (message) => {
     setShowToast(message);
@@ -50,16 +59,25 @@ const Main = () => {
 
   const drawSongInfo = async(data) => {
     setSongPosition(data.player.activeItem.position);
-    setCurrentSong(prevSong => ({
-      ...prevSong,
-      track: data.player.activeItem.index,
-      playlistId: data.player.activeItem.playlistId,
-      title: data.player.activeItem.columns[2],
-      album: data.player.activeItem.columns[1],
-      year: data.player.activeItem.columns[3],
-      artist: data.player.activeItem.columns[0],
-      duration: data.player.activeItem.duration
-    }));
+    setCurrentSong(prevSong => {
+      if (
+        prevSong.track !== data.player.activeItem.index ||
+        prevSong.playlistId !== data.player.activeItem.playlistId
+      ) {
+        return {
+          ...prevSong,
+          track: data.player.activeItem.index,
+          playlistId: data.player.activeItem.playlistId,
+          title: data.player.activeItem.columns[2],
+          album: data.player.activeItem.columns[1],
+          year: data.player.activeItem.columns[3],
+          artist: data.player.activeItem.columns[0],
+          duration: data.player.activeItem.duration
+        };
+      }
+    
+      return prevSong;
+    })
   };
 
   const fetchTracks = useCallback(async() => {
@@ -323,6 +341,39 @@ const Main = () => {
 
     fetchFolders();
   }, [currentPath, rootMusicPath])
+
+  useEffect(() => {
+    //const eventSource = new RNEventSource(`${API}/api/query/events?${queryString}`)
+    const updatesSource = new RNEventSource(`${API}/api/query/updates?${queryString}`)
+
+    /*const handleEventMessage = (event) => {
+      const eventData = JSON.parse(event.data)
+      if (eventData && eventData.player && eventData.player.activeItem) {
+        console.log('event', event.type)
+        console.log('event', eventData)
+      } else {
+        console.log("doesn't work / EVENT: ", event)
+      }
+    };*/
+
+    const handleUpdatesMessage = update => {
+      const updateData = JSON.parse(update.data);
+      if (updateData && updateData.player && updateData.player.activeItem) {
+        drawSongInfo(updateData);
+      }
+    };
+
+    //eventSource.addEventListener('message', handleEventMessage)
+    updatesSource.addEventListener('message', handleUpdatesMessage)
+
+    return () => {
+      //eventSource.removeEventListener('message', handleEventMessage)
+      updatesSource.removeEventListener('message', handleUpdatesMessage)
+      //eventSource.close()
+      updatesSource.close()
+    };
+
+  }, [])
 
   const imgBg = (albumCover) ? {uri: albumCover} : require('../assets/img/ice-fire.jpg')
 
