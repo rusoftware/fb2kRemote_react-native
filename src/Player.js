@@ -148,6 +148,7 @@ const styles = StyleSheet.create({
   currentlyPlaying: {
   },
   songInfo: {
+    maxWidth: playerSize,
     paddingLeft: 3
   },
   progressBar: {
