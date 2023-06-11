@@ -1,11 +1,12 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { StyleSheet, StatusBar, View, ImageBackground } from 'react-native';
-import API from '../config';
-import Player from './Player';
-import Tracklist from './Tracklist';
-import Explorer from './Explorer';
-import Playlists from './Playlists';
-import RNEventSource from 'react-native-event-source';
+import React, { useState, useEffect, useRef, useCallback } from 'react'
+import { StyleSheet, StatusBar, View, ImageBackground } from 'react-native'
+import API from '../config'
+import Player from './Player'
+import Tracklist from './Tracklist'
+import Explorer from './Explorer'
+import Playlists from './Playlists'
+import RNEventSource from 'react-native-event-source'
+import { dbToLinear, linearToDb } from './utils.js'
 
 const Main = () => {
 
@@ -14,6 +15,7 @@ const Main = () => {
   const [currentPath, setCurrentPath] = useState(null)
   const [folders, setFolders] = useState([])
   const [playing, setPlaying] = useState('foo')
+  const [volume, setVolume] = useState({})
   const [currentSong, setCurrentSong] = useState({
     track: -1,
     playlistId: -1,
@@ -132,13 +134,45 @@ const Main = () => {
     }
   }, [selectedPlaylist])
 
+  const handleVolume = (playerVolume) => {
+
+    const handleVolumeData = (volumeData) => {
+      if ( volumeData.type !== 'db') {
+        return {
+          type: volumeData.type,
+          min: volumeData.min,
+          max: volumeData.max,
+          value: volumeData.value,
+          hintText: volumeData.value.toFixed(0),
+          isMuted: volumeData.isMuted
+        }
+      }
+
+      return {
+        type: 'db',
+        min: 0.0,
+        max: 100,
+        value: dbToLinear(volumeData.value)*100.0,
+        hintText: Math.max(volumeData.value, volumeData.min).toFixed(0) + ' dB',
+        isMuted: volumeData.isMuted
+      }
+    }
+
+    if (playerVolume.value !== volume.value) {
+      setVolume(handleVolumeData(playerVolume))
+    }
+
+  }
+
   const updatePlayerStatus = useCallback(async() => {
     try {
       const response = await fetch(`${API}/api/player?player=true&columns=%25artist%25,%25album%25,%25title%25,%25year%25`, {
         method: 'GET'
       })
       const playerData = await response.json()
+
       setPlaying(playerData.player.playbackState)
+      handleVolume(playerData.player.volume)
       drawSongInfo(playerData)
       fetchTracks()
     } catch (e) {
@@ -352,6 +386,7 @@ const Main = () => {
       const updateData = JSON.parse(update.data)
       if (updateData && updateData.player && updateData.player.activeItem) {
         drawSongInfo(updateData)
+        handleVolume(updateData.player.volume)
       }
     }
 
@@ -369,57 +404,58 @@ const Main = () => {
   return (
     <ImageBackground source={ imgBg } resizeMode="cover" blurRadius={20} style={{flex: 1}}>
       <View style={{flex: 1, backgroundColor: '#10101066'}}>
-      <StatusBar 
-        animated={true}
-        backgroundColor='#00000000'
-        barStyle='light-content'
-        translucent={true}
-      />
-      <View style={styles.scrollView}>
-        <View style={{flex: 1}}>
-          {page === 'player' && (
-            <>
-              <Player
-                albumCover={albumCover}
-                currentSong={currentSong}
-                songPosition={songPosition}
-                playing={playing}
+        <StatusBar 
+          animated={true}
+          backgroundColor='#00000000'
+          barStyle='light-content'
+          translucent={true}
+        />
+        <View style={styles.scrollView}>
+          <View style={{flex: 1}}>
+            {page === 'player' && (
+              <>
+                <Player
+                  albumCover={albumCover}
+                  currentSong={currentSong}
+                  songPosition={songPosition}
+                  playing={playing}
+                  handlePageChange={handlePageChange}
+                  handlePlayerClick={handlePlayerClick}
+                  updateSongPosition={updateSongPosition}
+                />
+                <Tracklist
+                  selectedPlaylist={selectedPlaylist}
+                  playlists={playlists}
+                  tracklistsSongs={tracklistsSongs}
+                  playSong={playSong}
+                  playlistItemsRemove={playlistItemsRemove}
+                  currentSong={currentSong}
+                />
+              </>
+            )}
+            {page === 'explorer' && (
+              <Explorer
+                folders={folders}
+                setCurrentPath={setCurrentPath}
+                currentPath={currentPath}
                 handlePageChange={handlePageChange}
-                handlePlayerClick={handlePlayerClick}
-                updateSongPosition={updateSongPosition}
+                rootMusicPath={rootMusicPath}
+                playlistItemsAdd={playlistItemsAdd}
               />
-              <Tracklist
+            )}
+            {page === 'playlists' && (
+              <Playlists
+                handlePageChange={handlePageChange}
                 selectedPlaylist={selectedPlaylist}
+                setSelectedPlaylist={setSelectedPlaylist}
                 playlists={playlists}
-                tracklistsSongs={tracklistsSongs}
+                selectedPlaylistSongs={selectedPlaylistSongs}
                 playSong={playSong}
-                playlistItemsRemove={playlistItemsRemove}
-                currentSong={currentSong}
               />
-            </>
-          )}
-          {page === 'explorer' && (
-            <Explorer
-              folders={folders}
-              setCurrentPath={setCurrentPath}
-              currentPath={currentPath}
-              handlePageChange={handlePageChange}
-              rootMusicPath={rootMusicPath}
-              playlistItemsAdd={playlistItemsAdd}
-            />
-          )}
-          {page === 'playlists' && (
-            <Playlists
-              handlePageChange={handlePageChange}
-              selectedPlaylist={selectedPlaylist}
-              setSelectedPlaylist={setSelectedPlaylist}
-              playlists={playlists}
-              selectedPlaylistSongs={selectedPlaylistSongs}
-              playSong={playSong}
-            />
-          )}
+            )}
+          </View>
         </View>
-      </View></View>
+      </View>
     </ImageBackground>
   )
 }
