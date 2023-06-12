@@ -34,6 +34,7 @@ const Main = () => {
   const [showToast, setShowToast] = useState(false)
 
   const currentPositionRef = useRef(songPosition)
+  const prevAlbumRef = useRef(currentSong.album)
 
   const params = {
     player: true,
@@ -307,10 +308,13 @@ const Main = () => {
       } catch (error) {
         console.error('Error:', error)
       }
+    };
+  
+    if (currentSong.album && prevAlbumRef.current !== currentSong.album) {
+      getCoverArt()
+      prevAlbumRef.current = currentSong.album
     }
-
-    getCoverArt();
-  }, [currentSong])
+  }, [currentSong.album])
 
   useEffect(() => {
     const blockedPlaylists = ['Full Albums', 'Search']
@@ -385,8 +389,10 @@ const Main = () => {
     const handleUpdatesMessage = update => {
       const updateData = JSON.parse(update.data)
       if (updateData && updateData.player && updateData.player.activeItem) {
+        //console.log(updateData)
         drawSongInfo(updateData)
         handleVolume(updateData.player.volume)
+        setSelectedPlaylist(updateData.player.activeItem.playlistId)
       }
     }
 
