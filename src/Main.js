@@ -479,7 +479,6 @@ const Main = () => {
                 volume={volume}
                 setVolume={setVolume}
                 handlePageChange={handlePageChange}
-                changeVolume={changeVolume}
                 updateVolume={updateVolume}
               />
             )}
