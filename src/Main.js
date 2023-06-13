@@ -5,6 +5,7 @@ import Player from './Player'
 import Tracklist from './Tracklist'
 import Explorer from './Explorer'
 import Playlists from './Playlists'
+import Volume from './Volume'
 import RNEventSource from 'react-native-event-source'
 import { dbToLinear, linearToDb } from './utils.js'
 
@@ -162,7 +163,21 @@ const Main = () => {
     if (playerVolume.value !== volume.value) {
       setVolume(handleVolumeData(playerVolume))
     }
+  }
 
+  const updateVolume = (val) => {
+    try {
+      fetch(`${API}/api/player`, {
+        method: 'POST',
+        body: JSON.stringify({ volume: linearToDb(val / 100.0) }),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
+    }
+    catch (error) {
+      console.log("error updating volume", error)
+    }
   }
 
   const updatePlayerStatus = useCallback(async() => {
@@ -457,6 +472,15 @@ const Main = () => {
                 playlists={playlists}
                 selectedPlaylistSongs={selectedPlaylistSongs}
                 playSong={playSong}
+              />
+            )}
+            {page === 'volume' && (
+              <Volume
+                volume={volume}
+                setVolume={setVolume}
+                handlePageChange={handlePageChange}
+                changeVolume={changeVolume}
+                updateVolume={updateVolume}
               />
             )}
           </View>

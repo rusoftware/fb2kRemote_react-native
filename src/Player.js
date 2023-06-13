@@ -38,10 +38,10 @@ const Player = ({
       <View style={styles.player}>
         <View style={styles.currentlyPlaying}>
           <View style={styles.albumCover}>
-          <ImageBackground source={ require('../assets/img/album-bg.png') } resizeMode="cover" style={{flex: 1}}>
-            <Image 
-              source={{ uri: albumCover }}
-              style={styles.albumCoverImage} />
+            <ImageBackground source={ require('../assets/img/album-bg.png') } resizeMode="cover" style={{flex: 1}}>
+              <Image
+                source={{ uri: albumCover }}
+                style={styles.albumCoverImage} />
             </ImageBackground>
           </View>
           <View style={styles.songInfo}>
@@ -50,7 +50,8 @@ const Player = ({
             <StyledText h2>{ currentSong.album } - { currentSong.year }</StyledText>
           </View>
 
-          <View style={styles.progressBar}>
+          <View style={styles.progressBarContainer}>
+            <View style={styles.progressBar}>
             <Slider
               minimumValue={0}
               maximumValue={currentSong.duration}
@@ -60,12 +61,18 @@ const Player = ({
                 updateSongPosition(newPosition);
               }}
               style={styles.rangeInput}
+              thumbStyle={styles.thumb}
+              trackStyle={styles.track}
+              minimumTrackStyle={styles.minimumTrackStyle}
             />
             <View style={styles.timer}>
               <StyledText small>{formatTiming(songPosition)}</StyledText>
               <StyledText small>{formatTiming(currentSong.duration)}</StyledText>
             </View>
           </View>
+          <TouchableWithoutFeedback onPress={() => handlePageChange('volume')}>
+            <Ionicons name="md-volume-medium" size={24} style={styles.playerIcons} />
+          </TouchableWithoutFeedback></View>
 
           <View style={styles.playerMenu}>
             <TouchableWithoutFeedback onPress={() => handlePageChange('playlists')}>
@@ -73,7 +80,7 @@ const Player = ({
                 <FontAwesome name="music" size={18} style={styles.playerIcons} />
               </View>
             </TouchableWithoutFeedback>
-            
+
             <View style={styles.playerButtons}>
               <TouchableWithoutFeedback onPress={(event) => handlePlayerClick(event, 'previous')}>
                 <Fontisto name="backward" size={22} style={styles.playerIcons} />
@@ -123,13 +130,13 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'space-between',
-    //width: '100%'
   },
   albumCover: {
     marginTop: 30,
     marginBottom: 16,
     width: playerSize,
     height: playerSize,
+    alignSelf: 'center',
     backgroundColor: 'black',
     borderTopLeftRadius: 30,
     borderTopRightRadius: 30,
@@ -151,8 +158,16 @@ const styles = StyleSheet.create({
     maxWidth: playerSize,
     paddingLeft: 3
   },
+  progressBarContainer: {
+    width: playerSize,
+    maxWidth: playerSize,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center'
+  },
   progressBar: {
-    marginVertical: 20
+    marginVertical: 20,
+    width: windowWidth - 86
   },
   rangeInput: {
     backgroundColor: '#D66D75',
@@ -162,11 +177,16 @@ const styles = StyleSheet.create({
     transition: 'background 450ms ease-in',
   },
   thumb: {
-    width: 14,
-    height: 14,
-    borderRadius: 7,
-    cursor: 'ew-resize',
-    backgroundColor: '#D66D75',
+    width: 18,
+    height: 18,
+    borderRadius: 9,
+    backgroundColor: '#ebebeb',
+  },
+  track: {
+    backgroundColor: '#ebebeb33'
+  },
+  minimumTrackStyle: {
+    backgroundColor: '#ebebeb66'
   },
   timer: {
     marginHorizontal: 'auto',
