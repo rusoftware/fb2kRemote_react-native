@@ -110,6 +110,10 @@ const Player = ({
             <TouchableWithoutFeedback onPress={() => handlePageChange('explorer')}>
               <MaterialIcons name="folder" size={18} style={styles.playerIcons}/>
             </TouchableWithoutFeedback>
+
+            <TouchableWithoutFeedback onPress={() => handlePageChange('setup')}>
+              <Ionicons name="md-settings-sharp" size={24} style={styles.playerIcons} />
+            </TouchableWithoutFeedback>
           </View>
         </View>
       </View>

@@ -1,17 +1,18 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react'
 import { StyleSheet, StatusBar, View, ImageBackground } from 'react-native'
-import API from '../config'
+import { getAPI } from '../config'
 import Player from './Player'
 import Tracklist from './Tracklist'
 import Explorer from './Explorer'
 import Playlists from './Playlists'
 import Volume from './Volume'
+import AppConfig from './AppConfig'
 import RNEventSource from 'react-native-event-source'
 import { dbToLinear, linearToDb } from './utils.js'
 
 const Main = () => {
-
-  const [page, setPage] = useState('player')
+  const [apiUrl, setApiUrl] = useState(null)
+  const [page, setPage] = useState('setup')
   const [rootMusicPath, setRootMusicPath] = useState('')
   const [currentPath, setCurrentPath] = useState(null)
   const [folders, setFolders] = useState([])
@@ -37,6 +38,18 @@ const Main = () => {
   const currentPositionRef = useRef(songPosition)
   const prevAlbumRef = useRef(currentSong.album)
 
+  useEffect(() => {
+    const gettingUrl = async () => {
+      const storedAPI = await getAPI()
+      if (storedAPI) {
+        setApiUrl(storedAPI)
+        setPage('player')
+      }
+    }
+
+    gettingUrl()
+  }, [apiUrl])
+
   const params = {
     player: true,
     playlists: true,
@@ -54,11 +67,15 @@ const Main = () => {
   };
 
   const handlePlayerClick = (e, action) => {
-    fetch(`${API}/api/player/${action}`, {
-      method: 'POST'
-    })
-    .then(() => updatePlayerStatus())
-    .catch(error => console.error(error))
+    try {
+      fetch(`${apiUrl}/api/player/${action}`, {
+        method: 'POST'
+      })
+      .then(() => updatePlayerStatus())
+    }
+    catch (error) {
+      console.error('Error handling click', error)
+    }
   }
 
   const drawSongInfo = async(data) => {
@@ -87,7 +104,7 @@ const Main = () => {
   const fetchTracks = useCallback(async() => {
     if (selectedPlaylist) {
       try {
-        const response = await fetch(`${API}/api/playlists/${selectedPlaylist}/items/0:2000?columns=%25artist%25,%25album%25,%25year%25,%25track%25,%25title%25`)
+        const response = await fetch(`${apiUrl}/api/playlists/${selectedPlaylist}/items/0:2000?columns=%25artist%25,%25album%25,%25year%25,%25track%25,%25title%25`)
         const data = await response.json()
         setTracklistsSongs(data.playlistItems.items)
 
@@ -95,7 +112,7 @@ const Main = () => {
         
         const getMiniArt = async (track) => {
           try {
-            const response = await fetch(`${API}/api/artwork/${selectedPlaylist}/${track}`)
+            const response = await fetch(`${apiUrl}/api/artwork/${selectedPlaylist}/${track}`)
             if (response.ok) {
               const coverURL = `${response.url}?ts=${Date.now()}`
               return(coverURL)
@@ -134,7 +151,7 @@ const Main = () => {
         console.log('failed fetching tracks', error)
       }
     }
-  }, [selectedPlaylist])
+  }, [apiUrl, selectedPlaylist])
 
   const handleVolume = (playerVolume) => {
 
@@ -167,7 +184,7 @@ const Main = () => {
 
   const updateVolume = (val) => {
     try {
-      fetch(`${API}/api/player`, {
+      fetch(`${apiUrl}/api/player`, {
         method: 'POST',
         body: JSON.stringify({ volume: linearToDb(val / 100.0) }),
         headers: {
@@ -182,7 +199,7 @@ const Main = () => {
 
   const updatePlayerStatus = useCallback(async() => {
     try {
-      const response = await fetch(`${API}/api/player?player=true&columns=%25artist%25,%25album%25,%25title%25,%25year%25`, {
+      const response = await fetch(`${apiUrl}/api/player?player=true&columns=%25artist%25,%25album%25,%25title%25,%25year%25`, {
         method: 'GET'
       })
       const playerData = await response.json()
@@ -197,7 +214,7 @@ const Main = () => {
   }, [fetchTracks])
 
   const updateSongPosition = async (newPosition) => {
-    fetch(`${API}/api/player`, {
+    fetch(`${apiUrl}/api/player`, {
       method: 'POST',
       body: JSON.stringify({ position: newPosition }),
       headers: {
@@ -209,7 +226,7 @@ const Main = () => {
 
   const playSong = async (songId) => {
     try {
-      await fetch(`${API}/api/player/play/${selectedPlaylist}/${songId}`, {
+      await fetch(`${apiUrl}/api/player/play/${selectedPlaylist}/${songId}`, {
         method: 'POST',
       })
       .then(() => updatePlayerStatus())
@@ -229,7 +246,7 @@ const Main = () => {
         showToastMessage('blocked playlist')
       }
       else {
-        await fetch(`${API}/api/playlists/${selectedPlaylist}/items/add`, {
+        await fetch(`${apiUrl}/api/playlists/${selectedPlaylist}/items/add`, {
           method: 'POST',
           body: JSON.stringify({items: [folder], play: shouldPlay, replace: shouldReplace}),
           headers: {
@@ -250,7 +267,7 @@ const Main = () => {
         showToastMessage('blocked playlist')
       }
       else {
-        await fetch(`${API}/api/playlists/${selectedPlaylist}/items/remove`, {
+        await fetch(`${apiUrl}/api/playlists/${selectedPlaylist}/items/remove`, {
           method: 'POST',
           body: JSON.stringify({items: [path]}),
           headers: {
@@ -269,8 +286,10 @@ const Main = () => {
   }, [songPosition])
 
   useEffect(() => {
-    updatePlayerStatus()
-  }, [updatePlayerStatus])
+    if (apiUrl) {
+      updatePlayerStatus()
+    }
+  }, [updatePlayerStatus, apiUrl])
   
   useEffect(() => {
     const timerInterval = 1000
@@ -297,23 +316,27 @@ const Main = () => {
     return () => {
       clearInterval(interval)
     }
-  }, [currentSong.track, currentSong.duration, currentSong.position, playing, updatePlayerStatus])
+  }, [currentSong.track, currentSong.duration, currentSong.position, playing, updatePlayerStatus, apiUrl])
 
   useEffect(() => {
     fetchTracks()
-  }, [fetchTracks, selectedPlaylist, currentSong.track])
+  }, [fetchTracks, selectedPlaylist, currentSong.track, apiUrl])
 
   useEffect(() => {
-    fetch(`${API}/api/browser/roots`)
-      .then(response => response.json())
-      .then(data => setRootMusicPath(data.roots[0].path))
-  }, [])
+    const fetchRootURL = async () => {
+      fetch(`${apiUrl}/api/browser/roots`)
+        .then(response => response.json())
+        .then(data => setRootMusicPath(data.roots[0].path))
+    }
+    if (apiUrl) {
+      fetchRootURL()
+    }
+  }, [apiUrl])
 
   useEffect(() => {
     const getCoverArt = async () => {
       try {
-        const response = await fetch(`${API}/api/artwork/${currentSong.playlistId}/${currentSong.track}`)
-
+        const response = await fetch(`${apiUrl}/api/artwork/${currentSong.playlistId}/${currentSong.track}`)
         if (response.ok) {
           const coverURL = `${response.url}?ts=${Date.now()}`
           setAlbumCover(coverURL)
@@ -325,17 +348,17 @@ const Main = () => {
       }
     };
   
-    if (currentSong.album && prevAlbumRef.current !== currentSong.album) {
+    if (apiUrl && currentSong.album && (prevAlbumRef.current !== currentSong.album)) {
       getCoverArt()
       prevAlbumRef.current = currentSong.album
     }
-  }, [currentSong.album])
+  }, [apiUrl, currentSong.album])
 
   useEffect(() => {
     const blockedPlaylists = ['Full Albums', 'Search']
     const fetchPlaylists = async() => {
       try {
-        const response = await fetch(`${API}/api/playlists`)
+        const response = await fetch(`${apiUrl}/api/playlists`)
         const data = await response.json()
 
         const updatedPlaylists = data.playlists.map(playlist => {
@@ -354,8 +377,10 @@ const Main = () => {
       }
     }
 
-    fetchPlaylists()
-  }, [])
+    if (apiUrl) {
+      fetchPlaylists()
+    }
+  }, [apiUrl])
 
   useEffect(() => {
     const fetchFolders = async () => {
@@ -363,7 +388,7 @@ const Main = () => {
       const includedExtensions = ['mp3', 'flac']
       if (currentPath || rootMusicPath)
       try {
-        const response = await fetch(`${API}/api/browser/entries?path=${currentPath || rootMusicPath}`)
+        const response = await fetch(`${apiUrl}/api/browser/entries?path=${currentPath || rootMusicPath}`)
         const data = await response.json()
         const folders = data.entries.filter(entry => {
           const isExcluded = excludedFolders.includes(entry.name)
@@ -386,37 +411,44 @@ const Main = () => {
           return false
         })
 
-        setFolders(folders)
+        if (apiUrl) {
+          setFolders(folders)
+        }
       } catch (error) {
         console.error('failed fetching folders', error)
       }
     }
 
     fetchFolders()
-  }, [currentPath, rootMusicPath])
+  }, [apiUrl, currentPath, rootMusicPath])
 
   useEffect(() => {
-    const updatesSource = new RNEventSource(`${API}/api/query/updates?${queryString}`)
+    const creatingEventSources = async () => {
+      const updatesSource = new RNEventSource(`${apiUrl}/api/query/updates?${queryString}`)
 
-    // api/query/events is the other endpoint to create eventSource, but there's no documentation at all
-    // const eventSource = new RNEventSource(`${API}/api/query/events?${queryString}`)
+      // api/query/events is the other endpoint to create eventSource, but there's no documentation at all
+      // const eventSource = new RNEventSource(`${apiUrl}/api/query/events?${queryString}`)
 
-    const handleUpdatesMessage = update => {
-      const updateData = JSON.parse(update.data)
-      if (updateData && updateData.player && updateData.player.activeItem) {
-        drawSongInfo(updateData)
-        handleVolume(updateData.player.volume)
+      const handleUpdatesMessage = update => {
+        const updateData = JSON.parse(update.data)
+        if (updateData && updateData.player && updateData.player.activeItem) {
+          drawSongInfo(updateData)
+          handleVolume(updateData.player.volume)
+        }
       }
+
+      updatesSource.addEventListener('message', handleUpdatesMessage)
+
+      return () => {
+        updatesSource.removeAllListeners()
+        updatesSource.close()
+      };
     }
 
-    updatesSource.addEventListener('message', handleUpdatesMessage)
-
-    return () => {
-      updatesSource.removeAllListeners()
-      updatesSource.close()
-    };
-
-  }, [])
+    if (apiUrl) {
+      creatingEventSources()
+    }
+  }, [apiUrl])
 
   const imgBg = ( albumCover ) ? { uri: albumCover } : require('../assets/img/album-bg.png')
 
@@ -478,6 +510,12 @@ const Main = () => {
                 setVolume={setVolume}
                 handlePageChange={handlePageChange}
                 updateVolume={updateVolume}
+              />
+            )}
+            {(page === 'setup') && (
+              <AppConfig
+                handlePageChange={handlePageChange}
+                setApiUrl={setApiUrl}
               />
             )}
           </View>
