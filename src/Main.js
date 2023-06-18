@@ -429,8 +429,8 @@ const Main = () => {
       // api/query/events is the other endpoint to create eventSource, but there's no documentation at all
       // const eventSource = new RNEventSource(`${apiUrl}/api/query/events?${queryString}`)
 
-      const handleUpdatesMessage = update => {
-        const updateData = JSON.parse(update.data)
+      const handleUpdatesMessage = async (update) => {
+        const updateData = await JSON.parse(update.data)
         if (updateData && updateData.player && updateData.player.activeItem) {
           drawSongInfo(updateData)
           handleVolume(updateData.player.volume)
@@ -470,6 +470,8 @@ const Main = () => {
                   currentSong={currentSong}
                   songPosition={songPosition}
                   playing={playing}
+                  selectedPlaylist={selectedPlaylist}
+                  playlists={playlists}
                   handlePageChange={handlePageChange}
                   handlePlayerClick={handlePlayerClick}
                   updateSongPosition={updateSongPosition}

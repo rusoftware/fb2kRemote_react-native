@@ -1,7 +1,6 @@
-import React from "react";
+import React, { useState } from "react";
 import { 
   StyleSheet,
-  Alert,
   View,
   TouchableWithoutFeedback,
   Image,
@@ -10,7 +9,8 @@ import {
 } from 'react-native'
 import { Slider } from '@miblanchard/react-native-slider'
 import StyledText from "../customComponents/styledText"
-import { AntDesign, FontAwesome, Ionicons, MaterialIcons, Fontisto } from '@expo/vector-icons'
+import Header from "../customComponents/header";
+import { AntDesign, Ionicons, MaterialIcons, Fontisto } from '@expo/vector-icons'
 
 const playerSize = Dimensions.get('window').width - 30
 const windowWidth = Dimensions.get('window').width
@@ -20,6 +20,8 @@ const Player = ({
   currentSong,
   songPosition,
   playing,
+  selectedPlaylist,
+  playlists,
   handlePageChange,
   handlePlayerClick,
   updateSongPosition
@@ -35,6 +37,28 @@ const Player = ({
   
   return (
     <View style={styles.playerPage}>
+      <Header
+        title={
+          <TouchableWithoutFeedback onPress={() => handlePageChange('playlists')}>
+            <View><StyledText>
+              {selectedPlaylist
+              ? playlists.find(
+                  (currentPlaylist) => currentPlaylist.id === selectedPlaylist
+                )?.title
+              : 'Seleccionar opción'}
+            </StyledText>
+            </View>
+          </TouchableWithoutFeedback>
+        }
+        showExtraButton={
+          <TouchableWithoutFeedback onPress={() => handlePageChange('explorer')}>
+            <MaterialIcons name="folder" size={18} style={styles.playerIcons}/>
+          </TouchableWithoutFeedback>
+        }
+        showHomeButton={ false }
+        handlePageChange={handlePageChange}
+      />
+      
       <View style={styles.player}>
         <View style={styles.currentlyPlaying}>
           <View style={styles.albumCover}>
@@ -75,12 +99,6 @@ const Player = ({
           </TouchableWithoutFeedback></View>
 
           <View style={styles.playerMenu}>
-            <TouchableWithoutFeedback onPress={() => handlePageChange('playlists')}>
-              <View>
-                <FontAwesome name="music" size={18} style={styles.playerIcons} />
-              </View>
-            </TouchableWithoutFeedback>
-
             <View style={styles.playerButtons}>
               <TouchableWithoutFeedback onPress={(event) => handlePlayerClick(event, 'previous')}>
                 <Fontisto name="backward" size={22} style={styles.playerIcons} />
@@ -106,14 +124,6 @@ const Player = ({
                 <Fontisto name="forward" size={22} style={styles.playerIcons} />
               </TouchableWithoutFeedback>
             </View>
-
-            <TouchableWithoutFeedback onPress={() => handlePageChange('explorer')}>
-              <MaterialIcons name="folder" size={18} style={styles.playerIcons}/>
-            </TouchableWithoutFeedback>
-
-            <TouchableWithoutFeedback onPress={() => handlePageChange('setup')}>
-              <Ionicons name="md-settings-sharp" size={24} style={styles.playerIcons} />
-            </TouchableWithoutFeedback>
           </View>
         </View>
       </View>
@@ -142,10 +152,10 @@ const styles = StyleSheet.create({
     height: playerSize,
     alignSelf: 'center',
     backgroundColor: 'black',
-    borderTopLeftRadius: 30,
-    borderTopRightRadius: 30,
-    borderBottomLeftRadius: 30, //20,
-    borderBottomRightRadius: 30,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    borderBottomLeftRadius: 20, //20,
+    borderBottomRightRadius: 20,
     overflow: 'hidden',
     shadowColor: '#000',
     shadowOpacity: 1,

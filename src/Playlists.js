@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { View, Modal, Dimensions, Image, TouchableWithoutFeedback, ScrollView } from 'react-native';
-import { MaterialIcons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import StyledText from '../customComponents/styledText';
+import Header from '../customComponents/header';
 import placeholderImg from '../assets/img/no-cover.jpeg';
 
 const Playlists = ({
@@ -25,23 +26,18 @@ const Playlists = ({
 
   return (
     <View style={styles.playlistsSection}>
-      <View style={styles.header}>
-        <TouchableWithoutFeedback onPress={() => handlePageChange('player')}>
+      <Header
+        handlePageChange={handlePageChange}
+        title={ selectedPlaylist
+          ? `${playlists.find((currentPlaylist) => currentPlaylist.id === selectedPlaylist)?.title}`
+          : 'No playlist selected' }
+        showHomeButton={ true }
+        showExtraButton= {<TouchableWithoutFeedback onPress={toggleDropdown}>
           <View>
-            <MaterialIcons name="chevron-left" size={38} style={styles.back} color="#ebebeb" />
+            <MaterialCommunityIcons name="playlist-music" size={24} color="#ebebeb66" />
           </View>
-        </TouchableWithoutFeedback>
-        
-        <TouchableWithoutFeedback onPress={toggleDropdown}>
-          <View style={styles.dropdownToggle}>
-            <StyledText style={styles.dropdownText}>
-              {selectedPlaylist
-                ? `from: ${playlists.find((currentPlaylist) => currentPlaylist.id === selectedPlaylist)?.title}`
-                : 'Seleccionar opción'}
-            </StyledText>
-          </View>
-        </TouchableWithoutFeedback>
-      </View>
+        </TouchableWithoutFeedback>}
+      />
 
       <Modal visible={isOpen} animationType="slide" transparent>
         <TouchableWithoutFeedback  onPress={toggleDropdown}>
@@ -127,10 +123,6 @@ const styles = {
     justifyContent: 'space-between',
     paddingHorizontal: 6,
     marginTop: 50,
-  },
-  dropdownToggle: {
-    paddingTop: 8,
-    paddingRight: 8
   },
   dropdownMenu: {
     flex: 1,

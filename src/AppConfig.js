@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from 'react';
-import { StyleSheet, Dimensions, View, TextInput, Button, TouchableWithoutFeedback } from 'react-native'
+import React, { useEffect, useState } from 'react'
+import { StyleSheet, Dimensions, View, TextInput, TouchableWithoutFeedback } from 'react-native'
+import Header from '../customComponents/header'
 import { MaterialIcons } from '@expo/vector-icons'
 import StyledText from '../customComponents/styledText'
 import AsyncStorage from '@react-native-async-storage/async-storage'
@@ -37,14 +38,11 @@ const AppConfig = ({
 
   return (
     <View style={styles.setupPage}>
-      <View style={styles.header}>
-        <TouchableWithoutFeedback onPress={() => handlePageChange('player') }>
-          <View>
-            <MaterialIcons name="chevron-left" size={38} style={styles.back} color="#ebebeb" />
-          </View>
-        </TouchableWithoutFeedback>
-        <StyledText style={styles.textHeader}>Setup page</StyledText>
-      </View>
+      <Header
+        title="Setup page"
+        showHomeButton={ true }
+        handlePageChange={handlePageChange}
+      />
 
       <View style={styles.formContainer}>
         <StyledText style={styles.labelText}>IP Address:</StyledText>

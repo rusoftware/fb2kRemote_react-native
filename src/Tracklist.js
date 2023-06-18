@@ -70,11 +70,11 @@ const Tracklist = ({
                 </View>
               </TouchableWithoutFeedback>
               <TouchableWithoutFeedback
-                style={styles.trackRemove}
                 onPress={() => playlistItemsRemove(index)}
               >
-
-                <MaterialCommunityIcons name="playlist-remove" size={24} color="#ebebeb" />
+                <View style={styles.trackRemove}>
+                  <MaterialCommunityIcons name="playlist-remove" size={24} color="#ebebeb" />
+                </View>
               </TouchableWithoutFeedback>
             </View>
         }
@@ -142,7 +142,6 @@ const styles = StyleSheet.create({
     fontSize: 12
   },
   trackRemove: {
-    flex: 1,
     textAlign: 'center',
     alignSelf: 'center',
   },

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { View, Dimensions, TouchableWithoutFeedback, SectionList, ScrollView } from 'react-native'
 import StyledText from '../customComponents/styledText'
+import Header from '../customComponents/header'
 import { MaterialIcons, MaterialCommunityIcons } from '@expo/vector-icons'
 
 const screentWidth = Dimensions.get('window').width
@@ -50,14 +51,16 @@ const Explorer = ({
 
   return (
     <View style={styles.explorer}>
-      <View style={styles.header}>
-        <TouchableWithoutFeedback onPress={() => handlePageChange('player')}>
-          <View>
-            <MaterialIcons name="chevron-left" size={38} style={styles.back} color="#ebebeb" />
-          </View>
-        </TouchableWithoutFeedback>
-        <StyledText style={styles.textExplorer}>Explorer</StyledText>
-      </View>
+      <Header
+        title="File explorer"
+        handlePageChange={ handlePageChange }
+        showHomeButton={ true }
+        showExtraButton={
+          <TouchableWithoutFeedback onPress={() => setCurrentPath(rootMusicPath)}>
+            <MaterialIcons name="folder" size={24} color='#ebebeb66' />
+          </TouchableWithoutFeedback>
+        }
+      />
 
       <View style={styles.navigationFolders}>
         {isRoot ? (
@@ -138,15 +141,6 @@ const Explorer = ({
 };
 
 const styles = {
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingHorizontal: 6,
-    marginTop: 50
-  },
-  textExplorer: {
-    paddingTop: 8
-  },
   container: {
     marginTop: 20,
     maxHeight: Dimensions.get('window').height - 100
