@@ -6,8 +6,8 @@ import placeholderImg from '../assets/img/no-cover.jpeg';
 
 const Playlists = ({
   handlePageChange,
-  selectedPlaylist,
-  setSelectedPlaylist,
+  openPlaylist,
+  setOpenPlaylist,
   playlists,
   selectedPlaylistSongs,
   playSong
@@ -19,7 +19,7 @@ const Playlists = ({
   };
 
   const handleOptionClick = (option) => {
-    setSelectedPlaylist(option);
+    setOpenPlaylist(option);
     setIsOpen(false);
   };
 
@@ -35,8 +35,8 @@ const Playlists = ({
         <TouchableWithoutFeedback onPress={toggleDropdown}>
           <View style={styles.dropdownToggle}>
             <StyledText style={styles.dropdownText}>
-              {selectedPlaylist
-                ? `from: ${playlists.find((currentPlaylist) => currentPlaylist.id === selectedPlaylist)?.title}`
+              {openPlaylist
+                ? `from: ${playlists.find((currentPlaylist) => currentPlaylist.id === openPlaylist)?.title}`
                 : 'Seleccionar opción'}
             </StyledText>
           </View>
@@ -47,13 +47,13 @@ const Playlists = ({
         <TouchableWithoutFeedback  onPress={toggleDropdown}>
         <View style={styles.dropdownMenu}>
           {playlists.map((pl) => {
-            if (pl.id !== selectedPlaylist) {
+            if (pl.id !== openPlaylist) {
               return (
                 <TouchableWithoutFeedback
                   key={pl.id}
                   style={[
                     styles.dropdownItem,
-                    selectedPlaylist === pl.id ? styles.selected : null,
+                    openPlaylist === pl.id ? styles.selected : null,
                   ]}
                   onPress={() => handleOptionClick(pl.id)}
                 >

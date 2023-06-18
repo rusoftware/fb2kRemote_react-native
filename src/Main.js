@@ -31,8 +31,10 @@ const Main = () => {
   const [albumCover, setAlbumCover] = useState(null)
   const [selectedPlaylist, setSelectedPlaylist] = useState(null)
   const [playlists, setPlaylists] = useState([])
+  const [appPlaylist, setAppPlaylist] = useState('')
+  const [tracklistsSongs, setTracklistsSongs] = useState([]);
+  const [openPlaylist, setOpenPlaylist] = useState(null)
   const [selectedPlaylistSongs, setSelectedPlaylistSongs] = useState([])
-  const [tracklistsSongs, setTracklistsSongs] = useState([])
   const [showToast, setShowToast] = useState(false)
 
   const currentPositionRef = useRef(songPosition)
@@ -102,17 +104,16 @@ const Main = () => {
   }
 
   const fetchTracks = useCallback(async() => {
-    if (selectedPlaylist) {
+    if (openPlaylist) {
       try {
-        const response = await fetch(`${apiUrl}/api/playlists/${selectedPlaylist}/items/0:2000?columns=%25artist%25,%25album%25,%25year%25,%25track%25,%25title%25`)
+        const response = await fetch(`${apiUrl}/api/playlists/${openPlaylist}/items/0:2000?columns=%25artist%25,%25album%25,%25year%25,%25track%25,%25title%25`)
         const data = await response.json()
-        setTracklistsSongs(data.playlistItems.items)
 
         const groupedData = {}
         
         const getMiniArt = async (track) => {
           try {
-            const response = await fetch(`${apiUrl}/api/artwork/${selectedPlaylist}/${track}`)
+            const response = await fetch(`${apiUrl}/api/artwork/${openPlaylist}/${track}`)
             if (response.ok) {
               const coverURL = `${response.url}?ts=${Date.now()}`
               return(coverURL)
@@ -151,7 +152,7 @@ const Main = () => {
         console.log('failed fetching tracks', error)
       }
     }
-  }, [apiUrl, selectedPlaylist])
+  }, [apiUrl, openPlaylist])
 
   const handleVolume = (playerVolume) => {
 
@@ -204,14 +205,16 @@ const Main = () => {
       })
       const playerData = await response.json()
 
+      getTracklistSongs()
       setPlaying(playerData.player.playbackState)
       handleVolume(playerData.player.volume)
       drawSongInfo(playerData)
-      fetchTracks()
+      
+      //fetchTracks()
     } catch (e) {
       console.log("failed updating status")
     }
-  }, [fetchTracks])
+  })
 
   const updateSongPosition = async (newPosition) => {
     fetch(`${apiUrl}/api/player`, {
@@ -226,7 +229,7 @@ const Main = () => {
 
   const playSong = async (songId) => {
     try {
-      await fetch(`${apiUrl}/api/player/play/${selectedPlaylist}/${songId}`, {
+      await fetch(`${apiUrl}/api/player/play/${openPlaylist}/${songId}`, {
         method: 'POST',
       })
       .then(() => updatePlayerStatus())
@@ -238,6 +241,18 @@ const Main = () => {
   const handlePageChange = (newPage) => {
     setPage(newPage)
   }
+
+  const getTracklistSongs = async () => {
+    if (selectedPlaylist) {
+      try {
+        const response = await fetch(`${apiUrl}/api/playlists/${selectedPlaylist}/items/0:2000?columns=%25artist%25,%25album%25,%25year%25,%25track%25,%25title%25`);
+        const data = await response.json();
+        setTracklistsSongs(data.playlistItems.items);
+      } catch (error) {
+        console.log("Error getting default playlist songs", error);
+      }
+    }
+  };
 
   const playlistItemsAdd = async (ev, folder, shouldPlay, shouldReplace) => {
     try {
@@ -289,7 +304,7 @@ const Main = () => {
     if (apiUrl) {
       updatePlayerStatus()
     }
-  }, [updatePlayerStatus, apiUrl])
+  }, [apiUrl])
   
   useEffect(() => {
     const timerInterval = 1000
@@ -355,11 +370,38 @@ const Main = () => {
   }, [apiUrl, currentSong.album])
 
   useEffect(() => {
-    const blockedPlaylists = ['Full Albums', 'Search']
+    const blockedPlaylists = ['Full Albums', 'Search', 'Library Selection']
+    const appPlaylistName = 'Rusoftware\'s App'
+    
+    const createAppPlaylist = async () => {
+      try {
+        await fetch(`${apiUrl}/api/playlists/add`, {
+          method: 'POST',
+          body: JSON.stringify({title: appPlaylistName}),
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        })
+        .then(() => {
+          console.log('app playlist creada')
+          fetchPlaylists()
+        })
+      }
+      catch (error) {
+        console.log("unable to create Default App Playlist")
+      }
+    }
+
     const fetchPlaylists = async() => {
       try {
         const response = await fetch(`${apiUrl}/api/playlists`)
         const data = await response.json()
+
+        const appPlaylistExists = data.playlists.find(playlist => playlist.title === appPlaylistName);
+        
+        if (!appPlaylistExists) {
+          return createAppPlaylist()
+        }
 
         const updatedPlaylists = data.playlists.map(playlist => {
           if (blockedPlaylists.includes(playlist.title)) {
@@ -370,7 +412,8 @@ const Main = () => {
 
         setPlaylists(updatedPlaylists)
 
-        const currentPlaylist = data.playlists.find(playlist => playlist.isCurrent)
+        const currentPlaylist = updatedPlaylists.find(playlist => playlist.title === appPlaylistName);
+
         setSelectedPlaylist(currentPlaylist.id)
       } catch (error) {
         console.log('failed fetching playlists', error)
@@ -381,6 +424,14 @@ const Main = () => {
       fetchPlaylists()
     }
   }, [apiUrl])
+
+  useEffect(() => {
+    setOpenPlaylist(selectedPlaylist)
+  }, [selectedPlaylist])
+
+  useEffect(() => {
+    getTracklistSongs();
+  }, [selectedPlaylist]);
 
   useEffect(() => {
     const fetchFolders = async () => {
@@ -477,10 +528,10 @@ const Main = () => {
                 <Tracklist
                   selectedPlaylist={selectedPlaylist}
                   playlists={playlists}
-                  tracklistsSongs={tracklistsSongs}
                   playSong={playSong}
                   playlistItemsRemove={playlistItemsRemove}
                   currentSong={currentSong}
+                  tracklistsSongs={tracklistsSongs}
                 />
               </>
             )}
@@ -497,8 +548,8 @@ const Main = () => {
             {page === 'playlists' && (
               <Playlists
                 handlePageChange={handlePageChange}
-                selectedPlaylist={selectedPlaylist}
-                setSelectedPlaylist={setSelectedPlaylist}
+                openPlaylist={openPlaylist}
+                setOpenPlaylist={setOpenPlaylist}
                 playlists={playlists}
                 selectedPlaylistSongs={selectedPlaylistSongs}
                 playSong={playSong}

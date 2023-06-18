@@ -1,22 +1,22 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, FlatList, Dimensions, TouchableWithoutFeedback } from 'react-native';
 import { useFonts } from 'expo-font';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import StyledText from '../customComponents/styledText';
 
-const tracklistWidth = Dimensions.get('window').width - 4
+const tracklistWidth = Dimensions.get('window').width - 4;
 
 const Tracklist = ({
   selectedPlaylist,
   playlists,
-  tracklistsSongs,
   playSong,
   playlistItemsRemove,
   currentSong,
+  tracklistsSongs
 }) => {
 
-  const [isOpen, setIsOpen] = useState(false)
-
+  const [isOpen, setIsOpen] = useState(false);
+  
   const [fontsLoaded] = useFonts({
     'Bronova': require('../assets/fonts/Bronova-Regular.ttf'),
     'Bronova Bold': require('../assets/fonts/Bronova-Bold.ttf'),
@@ -24,12 +24,12 @@ const Tracklist = ({
     'Roboto': require('../assets/fonts/Roboto-Regular.ttf')
   });
 
-  if (!fontsLoaded) {
-    return;
-  }
-
   const toggleOpen = () => {
-    setIsOpen(!isOpen)
+    setIsOpen(!isOpen);
+  };
+
+  if (!fontsLoaded) {
+    return null;
   }
 
   return (
@@ -47,43 +47,46 @@ const Tracklist = ({
         </View>
       </TouchableWithoutFeedback>
       <FlatList
-        data={ tracklistsSongs }
-        renderItem={({ item, index }) => 
+        data={tracklistsSongs}
+        renderItem={({ item, index }) => (
           <View
-              style={[
-                styles.trackItem,
-                index === currentSong.track &&
-                selectedPlaylist === currentSong.playlistId
-                  ? styles.selectedTrack
-                  : null,
-              ]}
-              key={index}
+            style={[
+              styles.trackItem,
+              index === currentSong.track &&
+              selectedPlaylist === currentSong.playlistId
+                ? styles.selectedTrack
+                : null,
+            ]}
+            key={index}
+          >
+            <TouchableWithoutFeedback onPress={() => playSong(index)}>
+              <View>
+                <Text style={styles.trackName}>
+                  {item.columns[3]} - {item.columns[4]}
+                </Text>
+                <Text style={styles.trackInfo}>
+                  {item.columns[0]} - {item.columns[1]} ({item.columns[2]})
+                </Text>
+              </View>
+            </TouchableWithoutFeedback>
+            <TouchableWithoutFeedback
+              style={styles.trackRemove}
+              onPress={() => playlistItemsRemove(index)}
             >
-              <TouchableWithoutFeedback onPress={() => playSong(index)}>
-                <View>
-                  <Text style={styles.trackName}>
-                    {item.columns[3]} - {item.columns[4]}
-                  </Text>
-                  <Text style={styles.trackInfo}>
-                    {item.columns[0]} - {item.columns[1]} ({item.columns[2]})
-                  </Text>
-                </View>
-              </TouchableWithoutFeedback>
-              <TouchableWithoutFeedback
-                style={styles.trackRemove}
-                onPress={() => playlistItemsRemove(index)}
-              >
-
-                <MaterialCommunityIcons name="playlist-remove" size={24} color="#ebebeb" />
-              </TouchableWithoutFeedback>
-            </View>
-        }
+              <MaterialCommunityIcons
+                name="playlist-remove"
+                size={24}
+                color="#ebebeb"
+              />
+            </TouchableWithoutFeedback>
+          </View>
+        )}
       />
     </View>
   );
 };
 
-const maxListHeight = Dimensions.get('screen').height - 80
+const maxListHeight = Dimensions.get('screen').height - 80;
 
 const styles = StyleSheet.create({
   tracklistSection: {
