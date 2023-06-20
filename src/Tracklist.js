@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, FlatList, Dimensions, TouchableWithoutFeedback } from 'react-native';
+import React, { useState, useEffect, useRef } from 'react';
+import { View, Text, StyleSheet, FlatList, Dimensions, TouchableWithoutFeedback, Animated } from 'react-native';
 import { useFonts } from 'expo-font';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import StyledText from '../customComponents/styledText';
 
-const tracklistWidth = Dimensions.get('window').width - 4
+const tracklistWidth = Dimensions.get('window').width - 4;
 
 const Tracklist = ({
   selectedPlaylist,
@@ -14,9 +14,7 @@ const Tracklist = ({
   playlistItemsRemove,
   currentSong,
 }) => {
-
-  const [isOpen, setIsOpen] = useState(false)
-
+  const [isOpen, setIsOpen] = useState(false);
   const [fontsLoaded] = useFonts({
     'Bronova': require('../assets/fonts/Bronova-Regular.ttf'),
     'Bronova Bold': require('../assets/fonts/Bronova-Bold.ttf'),
@@ -24,16 +22,26 @@ const Tracklist = ({
     'Roboto': require('../assets/fonts/Roboto-Regular.ttf')
   });
 
+  const listHeight = useRef(new Animated.Value(120)).current;
+
+  useEffect(() => {
+    Animated.timing(listHeight, {
+      toValue: isOpen ? 680 : 120, // Valor final de flexBasis
+      duration: 300, // Duración de la animación en milisegundos
+      useNativeDriver: false,
+    }).start();
+  }, [isOpen]);
+
   if (!fontsLoaded) {
-    return;
+    return null;
   }
 
   const toggleOpen = () => {
-    setIsOpen(!isOpen)
-  }
+    setIsOpen(!isOpen);
+  };
 
   return (
-    <View style={[styles.tracklistSection, isOpen && styles.listOpen]}>
+    <Animated.View style={[styles.tracklistSection, { height: listHeight }]}>
       <TouchableWithoutFeedback onPress={toggleOpen}>
         <View>
           <StyledText h2 style={styles.playlistTitle}>
@@ -47,61 +55,54 @@ const Tracklist = ({
         </View>
       </TouchableWithoutFeedback>
       <FlatList
-        data={ tracklistsSongs }
-        renderItem={({ item, index }) => 
+        data={tracklistsSongs}
+        renderItem={({ item, index }) => (
           <View
-              style={[
-                styles.trackItem,
-                index === currentSong.track &&
-                selectedPlaylist === currentSong.playlistId
-                  ? styles.selectedTrack
-                  : null,
-              ]}
-              key={index}
-            >
-              <TouchableWithoutFeedback onPress={() => playSong(index)}>
-                <View>
-                  <Text style={styles.trackName}>
-                    {item.columns[3]} - {item.columns[4]}
-                  </Text>
-                  <Text style={styles.trackInfo}>
-                    {item.columns[0]} - {item.columns[1]} ({item.columns[2]})
-                  </Text>
-                </View>
-              </TouchableWithoutFeedback>
-              <TouchableWithoutFeedback
-                onPress={() => playlistItemsRemove(index)}
-              >
-                <View style={styles.trackRemove}>
-                  <MaterialCommunityIcons name="playlist-remove" size={24} color="#ebebeb" />
-                </View>
-              </TouchableWithoutFeedback>
-            </View>
-        }
+            style={[
+              styles.trackItem,
+              index === currentSong.track &&
+              selectedPlaylist === currentSong.playlistId
+                ? styles.selectedTrack
+                : null,
+            ]}
+            key={index}
+          >
+            <TouchableWithoutFeedback onPress={() => playSong(index)}>
+              <View>
+                <Text style={styles.trackName}>
+                  {item.columns[3]} - {item.columns[4]}
+                </Text>
+                <Text style={styles.trackInfo}>
+                  {item.columns[0]} - {item.columns[1]} ({item.columns[2]})
+                </Text>
+              </View>
+            </TouchableWithoutFeedback>
+            <TouchableWithoutFeedback onPress={() => playlistItemsRemove(index)}>
+              <View style={styles.trackRemove}>
+                <MaterialCommunityIcons name="playlist-remove" size={24} color="#ebebeb" />
+              </View>
+            </TouchableWithoutFeedback>
+          </View>
+        )}
       />
-    </View>
+    </Animated.View>
   );
 };
 
-const maxListHeight = Dimensions.get('screen').height - 80
+const maxListHeight = Dimensions.get('screen').height - 80;
 
 const styles = StyleSheet.create({
   tracklistSection: {
     width: tracklistWidth,
     maxWidth: tracklistWidth,
     maxHeight: maxListHeight,
-    height: maxListHeight,
     backgroundColor: 'rgba(45,45,45,.8)',
-    flexBasis: 120,
     top: 0,
     elevation: 1,
     borderTopStartRadius: 6,
     borderTopEndRadius: 6,
     overflow: 'hidden',
     alignSelf: 'center'
-  },
-  listOpen: {
-    flexBasis: 680
   },
   playlistTitle: {
     textAlign: 'right',
