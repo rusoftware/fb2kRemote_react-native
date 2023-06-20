@@ -61,23 +61,20 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     paddingHorizontal: 6,
-    marginTop: 50,
-    alignItems: 'center'
+    marginTop: 34,
+    alignItems: 'center',
+    height: 30
   },
   sectionTitle: {
     color: '#ebebebff',
-    height: 40,
-    paddingTop: 8,
-    alignItems: 'center'
+    marginTop: 6
   },
   backButton: {
     width: 40,
-    height: 40,
     alignItems: 'center'
   },
   settingButton: {
     width: 40,
-    height: 40,
     justifyContent: 'center',
     alignItems: 'center'
   }

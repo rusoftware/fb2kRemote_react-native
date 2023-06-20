@@ -10,9 +10,9 @@ import {
 import { Slider } from '@miblanchard/react-native-slider'
 import StyledText from "../customComponents/styledText"
 import Header from "../customComponents/header";
-import { AntDesign, Ionicons, MaterialIcons, Fontisto } from '@expo/vector-icons'
+import { Ionicons, MaterialIcons, Fontisto } from '@expo/vector-icons'
 
-const playerSize = Dimensions.get('window').width - 30
+const playerSize = Dimensions.get('window').width / 1.54 //- 30
 const windowWidth = Dimensions.get('window').width
 
 const Player = ({
@@ -76,30 +76,32 @@ const Player = ({
 
           <View style={styles.progressBarContainer}>
             <View style={styles.progressBar}>
-            <Slider
-              minimumValue={0}
-              maximumValue={currentSong.duration}
-              value={songPosition}
-              onValueChange={(newValue) => {
-                const newPosition = parseInt(newValue, 10);
-                updateSongPosition(newPosition);
-              }}
-              style={styles.rangeInput}
-              thumbStyle={styles.thumb}
-              trackStyle={styles.track}
-              minimumTrackStyle={styles.minimumTrackStyle}
-            />
-            <View style={styles.timer}>
-              <StyledText small>{formatTiming(songPosition)}</StyledText>
-              <StyledText small>{formatTiming(currentSong.duration)}</StyledText>
+              <Slider
+                minimumValue={0}
+                maximumValue={currentSong.duration}
+                value={songPosition}
+                onValueChange={(newValue) => {
+                  const newPosition = parseInt(newValue, 10);
+                  updateSongPosition(newPosition);
+                }}
+                style={styles.rangeInput}
+                thumbStyle={styles.thumb}
+                trackStyle={styles.track}
+                minimumTrackStyle={styles.minimumTrackStyle}
+              />
+              <View style={styles.timer}>
+                <StyledText small>{formatTiming(songPosition)}</StyledText>
+                <StyledText small>{formatTiming(currentSong.duration)}</StyledText>
+              </View>
             </View>
           </View>
-          <TouchableWithoutFeedback onPress={() => handlePageChange('volume')}>
-            <Ionicons name="md-volume-medium" size={24} style={styles.playerIcons} />
-          </TouchableWithoutFeedback></View>
 
           <View style={styles.playerMenu}>
             <View style={styles.playerButtons}>
+              <TouchableWithoutFeedback onPress={() => console.log('lyrics')}>
+                <Ionicons name="document-text" size={24} style={styles.lyricsIcon} />
+              </TouchableWithoutFeedback>
+
               <TouchableWithoutFeedback onPress={(event) => handlePlayerClick(event, 'previous')}>
                 <Fontisto name="backward" size={22} style={styles.playerIcons} />
               </TouchableWithoutFeedback>
@@ -107,14 +109,14 @@ const Player = ({
               <View style={styles.mainButton}>
                 {playing === 'stopped' ? (
                   <TouchableWithoutFeedback onPress={(event) => handlePlayerClick(event, 'play')}>
-                    <Ionicons name="md-play" size={40} style={[styles.playerIcons, styles.playBtn]} />
+                    <Ionicons name="play-circle" size={82} style={[styles.playerIcons, styles.playBtn]} />
                   </TouchableWithoutFeedback>
                 ) : (
                   <TouchableWithoutFeedback onPress={(event) => handlePlayerClick(event, 'pause/toggle')}>
                     {playing === 'playing' ? 
-                      <AntDesign name="pause" size={42} style={styles.playerIcons} />
+                      <Ionicons name="pause-circle" size={82} style={[styles.playerIcons, styles.playBtn]} />
                     :
-                      <Ionicons name="md-play" size={40} style={[styles.playerIcons, styles.playBtn]} />
+                      <Ionicons name="play-circle" size={82} style={[styles.playerIcons, styles.playBtn]} />
                     }
                   </TouchableWithoutFeedback>
                 )}
@@ -122,6 +124,10 @@ const Player = ({
 
               <TouchableWithoutFeedback onPress={(event) => handlePlayerClick(event, 'next')}>
                 <Fontisto name="forward" size={22} style={styles.playerIcons} />
+              </TouchableWithoutFeedback>
+
+              <TouchableWithoutFeedback onPress={() => handlePageChange('volume')}>
+                <Ionicons name="md-volume-medium" size={24} style={styles.volumeIcon} />
               </TouchableWithoutFeedback>
             </View>
           </View>
@@ -146,7 +152,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   albumCover: {
-    marginTop: 30,
+    marginTop: 10,
     marginBottom: 16,
     width: playerSize,
     height: playerSize,
@@ -169,19 +175,22 @@ const styles = StyleSheet.create({
   currentlyPlaying: {
   },
   songInfo: {
+    width: playerSize,
     maxWidth: playerSize,
+    overflow: 'hidden',
+    alignSelf: 'center',
     paddingLeft: 3
   },
   progressBarContainer: {
-    width: playerSize,
-    maxWidth: playerSize,
+    width: windowWidth,
+    maxWidth: windowWidth,
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'center',
     alignItems: 'center'
   },
   progressBar: {
     marginVertical: 20,
-    width: windowWidth - 86
+    width: windowWidth - 46
   },
   rangeInput: {
     backgroundColor: '#D66D75',
@@ -213,8 +222,8 @@ const styles = StyleSheet.create({
     position: 'relative',
     flexDirection: 'row',
     alignItems: 'center',
+    alignContent: 'center',
     justifyContent: 'space-around',
-    marginHorizontal: 'auto',
   },
   playerButtons: {
     flexDirection: 'row',
@@ -222,20 +231,25 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   mainButton: {
-    marginHorizontal: 26,
+    marginHorizontal: 36,
     justifyContent: 'center',
-    width: 56,
-    height: 56,
-    borderRadius: 80,
-    borderWidth: 1,
-    borderColor: '#fff',
+    width: 82,
+    height: 82,
     alignItems: 'center'
   },
   playerIcons: {
-    color: '#ebebeb'
+    color: '#ebebeb',
   },
   playBtn: {
     paddingLeft: 5
+  },
+  lyricsIcon: {
+    marginRight: 32,
+    color: "#ebebeb66"
+  },
+  volumeIcon: {
+    marginLeft: 32,
+    color: "#ebebeb66"
   }
 });
 
