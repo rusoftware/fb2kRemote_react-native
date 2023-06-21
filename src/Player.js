@@ -24,7 +24,8 @@ const Player = ({
   playlists,
   handlePageChange,
   handlePlayerClick,
-  updateSongPosition
+  updateSongPosition,
+  alertMessage
 }) => {
 
   const formatTiming = (time) => {
@@ -98,7 +99,7 @@ const Player = ({
 
           <View style={styles.playerMenu}>
             <View style={styles.playerButtons}>
-              <TouchableWithoutFeedback onPress={() => console.log('lyrics')}>
+              <TouchableWithoutFeedback onPress={() => alertMessage('TODO','add lyrics component')}>
                 <Ionicons name="document-text" size={24} style={styles.lyricsIcon} />
               </TouchableWithoutFeedback>
 

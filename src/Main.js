@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react'
-import { StyleSheet, StatusBar, View, ImageBackground } from 'react-native'
+import { StyleSheet, StatusBar, View, ImageBackground, Alert } from 'react-native'
 import { getAPI } from '../config'
 import Player from './Player'
 import Tracklist from './Tracklist'
@@ -33,7 +33,6 @@ const Main = () => {
   const [playlists, setPlaylists] = useState([])
   const [selectedPlaylistSongs, setSelectedPlaylistSongs] = useState([])
   const [tracklistsSongs, setTracklistsSongs] = useState([])
-  const [showToast, setShowToast] = useState(false)
 
   const currentPositionRef = useRef(songPosition)
   const prevAlbumRef = useRef(currentSong.album)
@@ -58,12 +57,15 @@ const Main = () => {
 
   const queryString = new URLSearchParams(params).toString()
   
-  const showToastMessage = (message) => {
-    setShowToast(message);
-
-    setTimeout(() => {
-      setShowToast(false)
-    }, 3000);
+  const alertMessage = (title, message) => {
+    Alert.alert(
+      title,
+      message,
+      [
+        { text: 'OK', onPress: () => console.log('Cancel pressed'), style: 'cancel' }
+      ],
+      { cancelable: true }
+    );
   };
 
   const handlePlayerClick = (e, action) => {
@@ -243,7 +245,7 @@ const Main = () => {
     try {
       const selectedList = playlists.find(playlist => playlist.id === selectedPlaylist)
       if (selectedList && selectedList.blocked) {
-        showToastMessage('blocked playlist')
+        alertMessage('wait...', 'blocked playlist')
       }
       else {
         await fetch(`${apiUrl}/api/playlists/${selectedPlaylist}/items/add`, {
@@ -264,7 +266,7 @@ const Main = () => {
     try {
       const selectedList = playlists.find(playlist => playlist.id === selectedPlaylist)
       if (selectedList && selectedList.blocked) {
-        showToastMessage('blocked playlist')
+        alertMessage('wait...', 'blocked playlist')
       }
       else {
         await fetch(`${apiUrl}/api/playlists/${selectedPlaylist}/items/remove`, {
@@ -475,6 +477,7 @@ const Main = () => {
                   handlePageChange={handlePageChange}
                   handlePlayerClick={handlePlayerClick}
                   updateSongPosition={updateSongPosition}
+                  alertMessage={alertMessage}
                 />
                 <Tracklist
                   selectedPlaylist={selectedPlaylist}
