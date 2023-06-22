@@ -8,7 +8,6 @@ const tracklistWidth = Dimensions.get('window').width - 4;
 
 const Tracklist = ({
   selectedPlaylist,
-  playlists,
   tracklistsSongs,
   playSong,
   playlistItemsRemove,
@@ -47,9 +46,7 @@ const Tracklist = ({
           <StyledText h2 style={styles.playlistTitle}>
             from{' '}
             {selectedPlaylist
-              ? playlists.find(
-                  (currentPlaylist) => currentPlaylist.id === selectedPlaylist
-                )?.title
+              ? selectedPlaylist?.title
               : 'Seleccionar opción'}
           </StyledText>
         </View>
@@ -61,7 +58,7 @@ const Tracklist = ({
             style={[
               styles.trackItem,
               index === currentSong.track &&
-              selectedPlaylist === currentSong.playlistId
+              selectedPlaylist.id === currentSong.playlistId
                 ? styles.selectedTrack
                 : null,
             ]}

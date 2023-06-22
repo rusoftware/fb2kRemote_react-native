@@ -21,7 +21,6 @@ const Player = ({
   songPosition,
   playing,
   selectedPlaylist,
-  playlists,
   handlePageChange,
   handlePlayerClick,
   updateSongPosition,
@@ -43,9 +42,7 @@ const Player = ({
           <TouchableWithoutFeedback onPress={() => handlePageChange('playlists')}>
             <View><StyledText>
               {selectedPlaylist
-              ? playlists.find(
-                  (currentPlaylist) => currentPlaylist.id === selectedPlaylist
-                )?.title
+              ? selectedPlaylist?.title
               : 'Seleccionar opción'}
             </StyledText>
             </View>

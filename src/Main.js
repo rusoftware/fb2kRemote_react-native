@@ -106,7 +106,7 @@ const Main = () => {
   const fetchTracks = useCallback(async () => {
     if (selectedPlaylist) {
       try {
-        const response = await fetch(`${apiUrl}/api/playlists/${selectedPlaylist}/items/0:2000?columns=%25artist%25,%25album%25,%25year%25,%25track%25,%25title%25`)
+        const response = await fetch(`${apiUrl}/api/playlists/${selectedPlaylist.id}/items/0:2000?columns=%25artist%25,%25album%25,%25year%25,%25track%25,%25title%25`)
         const data = await response.json()
         setTracklistsSongs(data.playlistItems.items)
 
@@ -114,7 +114,7 @@ const Main = () => {
         
         const getMiniArt = async (track) => {
           try {
-            const response = await fetch(`${apiUrl}/api/artwork/${selectedPlaylist}/${track}`)
+            const response = await fetch(`${apiUrl}/api/artwork/${selectedPlaylist.id}/${track}`)
             if (response.ok) {
               const coverURL = `${response.url}?ts=${Date.now()}`
               return(coverURL)
@@ -228,7 +228,7 @@ const Main = () => {
 
   const playSong = async (songId) => {
     try {
-      await fetch(`${apiUrl}/api/player/play/${selectedPlaylist}/${songId}`, {
+      await fetch(`${apiUrl}/api/player/play/${selectedPlaylist.id}/${songId}`, {
         method: 'POST',
       })
       .then(() => updatePlayerStatus())
@@ -243,12 +243,11 @@ const Main = () => {
 
   const playlistItemsAdd = async (ev, folder, shouldPlay, shouldReplace) => {
     try {
-      const selectedList = playlists.find(playlist => playlist.id === selectedPlaylist)
-      if (selectedList && selectedList.blocked) {
+      if (selectedPlaylist.blocked) {
         alertMessage('wait...', 'blocked playlist')
       }
       else {
-        await fetch(`${apiUrl}/api/playlists/${selectedPlaylist}/items/add`, {
+        await fetch(`${apiUrl}/api/playlists/${selectedPlaylist.id}/items/add`, {
           method: 'POST',
           body: JSON.stringify({items: [folder], play: shouldPlay, replace: shouldReplace}),
           headers: {
@@ -264,12 +263,11 @@ const Main = () => {
 
   const playlistItemsRemove = async (path) => {
     try {
-      const selectedList = playlists.find(playlist => playlist.id === selectedPlaylist)
-      if (selectedList && selectedList.blocked) {
+      if (selectedPlaylist.blocked) {
         alertMessage('wait...', 'blocked playlist')
       }
       else {
-        await fetch(`${apiUrl}/api/playlists/${selectedPlaylist}/items/remove`, {
+        await fetch(`${apiUrl}/api/playlists/${selectedPlaylist.id}/items/remove`, {
           method: 'POST',
           body: JSON.stringify({items: [path]}),
           headers: {
@@ -367,7 +365,7 @@ const Main = () => {
         setPlaylists(updatedPlaylists)
 
         const currentPlaylist = updatedPlaylists.find(playlist => playlist.isCurrent)
-        setSelectedPlaylist(currentPlaylist.id)
+        setSelectedPlaylist(currentPlaylist)
       } catch (error) {
         console.log('failed fetching playlists', error)
       }
@@ -467,7 +465,6 @@ const Main = () => {
                   songPosition={songPosition}
                   playing={playing}
                   selectedPlaylist={selectedPlaylist}
-                  playlists={playlists}
                   handlePageChange={handlePageChange}
                   handlePlayerClick={handlePlayerClick}
                   updateSongPosition={updateSongPosition}
@@ -475,7 +472,6 @@ const Main = () => {
                 />
                 <Tracklist
                   selectedPlaylist={selectedPlaylist}
-                  playlists={playlists}
                   tracklistsSongs={tracklistsSongs}
                   playSong={playSong}
                   playlistItemsRemove={playlistItemsRemove}
