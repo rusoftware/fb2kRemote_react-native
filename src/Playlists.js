@@ -29,7 +29,7 @@ const Playlists = ({
       <Header
         handlePageChange={handlePageChange}
         title={ selectedPlaylist
-          ? `${playlists.find((currentPlaylist) => currentPlaylist.id === selectedPlaylist)?.title}`
+          ? selectedPlaylist?.title
           : 'No playlist selected' }
         showHomeButton={ true }
         showExtraButton= {<TouchableWithoutFeedback onPress={toggleDropdown}>
@@ -43,18 +43,15 @@ const Playlists = ({
         <TouchableWithoutFeedback  onPress={toggleDropdown}>
         <View style={styles.dropdownMenu}>
           {playlists.map((pl) => {
-            if (pl.id !== selectedPlaylist) {
+            if (pl.id !== selectedPlaylist.id) {
               return (
                 <TouchableWithoutFeedback
                   key={pl.id}
-                  style={[
-                    styles.dropdownItem,
-                    selectedPlaylist === pl.id ? styles.selected : null,
-                  ]}
-                  onPress={() => handleOptionClick(pl.id)}
+                  style={styles.dropdownItem}
+                  onPress={() => handleOptionClick(pl)}
                 >
                   <View style={styles.dropdownItem}>
-                    <StyledText big>{pl.title}</StyledText>
+                    <StyledText big>{pl.title} <StyledText>({pl.itemCount} items)</StyledText></StyledText>
                   </View>
                 </TouchableWithoutFeedback>
               );
