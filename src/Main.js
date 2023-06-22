@@ -1,14 +1,14 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react'
-import { StyleSheet, StatusBar, View, ImageBackground, Alert } from 'react-native'
-import { getAPI } from '../config'
-import Player from './Player'
-import Tracklist from './Tracklist'
-import Explorer from './Explorer'
-import Playlists from './Playlists'
-import Volume from './Volume'
-import AppConfig from './AppConfig'
-import RNEventSource from 'react-native-event-source'
-import { dbToLinear, linearToDb } from './utils.js'
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { StyleSheet, StatusBar, View, ImageBackground, Alert } from 'react-native';
+import { getAPI } from '../config';
+import Player from './Player';
+import Tracklist from './Tracklist';
+import Explorer from './Explorer';
+import Playlists from './Playlists';
+import Volume from './Volume';
+import AppConfig from './AppConfig';
+import RNEventSource from 'react-native-event-source';
+import { dbToLinear, linearToDb } from './utils.js';
 
 const Main = () => {
   const [apiUrl, setApiUrl] = useState(null)
@@ -80,7 +80,7 @@ const Main = () => {
     }
   }
 
-  const drawSongInfo = async(data) => {
+  const drawSongInfo = async (data) => {
     setSongPosition(data.player.activeItem.position)
     setCurrentSong(prevSong => {
       if (
@@ -103,7 +103,7 @@ const Main = () => {
     })
   }
 
-  const fetchTracks = useCallback(async() => {
+  const fetchTracks = useCallback(async () => {
     if (selectedPlaylist) {
       try {
         const response = await fetch(`${apiUrl}/api/playlists/${selectedPlaylist}/items/0:2000?columns=%25artist%25,%25album%25,%25year%25,%25track%25,%25title%25`)
@@ -302,12 +302,6 @@ const Main = () => {
       }
 
       const currentPosition = currentPositionRef.current
-
-      if (currentPosition >= currentSong.duration) {
-        updatePlayerStatus()
-        return
-      }
-
       const newPosition = currentPosition + timerInterval / 1000
       currentPositionRef.current += newPosition
       setSongPosition(newPosition)
@@ -318,7 +312,7 @@ const Main = () => {
     return () => {
       clearInterval(interval)
     }
-  }, [currentSong.track, currentSong.duration, currentSong.position, playing, updatePlayerStatus, apiUrl])
+  }, [currentSong.track, playing, updatePlayerStatus, apiUrl])
 
   useEffect(() => {
     fetchTracks()
@@ -357,7 +351,7 @@ const Main = () => {
   }, [apiUrl, currentSong.album])
 
   useEffect(() => {
-    const blockedPlaylists = ['Full Albums', 'Search']
+    const blockedPlaylists = ['Full Albums', 'Search', 'Library Selection']
     const fetchPlaylists = async() => {
       try {
         const response = await fetch(`${apiUrl}/api/playlists`)
@@ -372,7 +366,7 @@ const Main = () => {
 
         setPlaylists(updatedPlaylists)
 
-        const currentPlaylist = data.playlists.find(playlist => playlist.isCurrent)
+        const currentPlaylist = updatedPlaylists.find(playlist => playlist.isCurrent)
         setSelectedPlaylist(currentPlaylist.id)
       } catch (error) {
         console.log('failed fetching playlists', error)
