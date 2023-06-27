@@ -89,7 +89,7 @@ const Playlists = ({
                       const songIndex = Object.values(song)[2];
                       return (
                         <View key={index} style={styles.track}>
-                          <TouchableWithoutFeedback onPress={() => playSong(songIndex)}>
+                          <TouchableWithoutFeedback onPress={() => playSong(songIndex, selectedPlaylist.id)}>
                             <View style={styles.trackName}>
                               <StyledText h2>{songNumber} - {songName}</StyledText>
                             </View>
