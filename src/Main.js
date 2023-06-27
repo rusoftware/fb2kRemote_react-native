@@ -29,7 +29,9 @@ const Main = () => {
   })
   const [songPosition, setSongPosition] = useState(0)
   const [albumCover, setAlbumCover] = useState(null)
+  const [appPlaylist, setAppPlaylist] = useState('')
   const [selectedPlaylist, setSelectedPlaylist] = useState(null)
+  //const [currentPlaylist, setCurrentPlaylist] = useState(null)
   const [playlists, setPlaylists] = useState([])
   const [selectedPlaylistSongs, setSelectedPlaylistSongs] = useState([])
   const [tracklistsSongs, setTracklistsSongs] = useState([])
@@ -210,6 +212,7 @@ const Main = () => {
       handleVolume(playerData.player.volume)
       drawSongInfo(playerData)
       fetchTracks()
+
     } catch (e) {
       console.log("failed updating status")
     }
@@ -247,13 +250,14 @@ const Main = () => {
         alertMessage('wait...', 'blocked playlist')
       }
       else {
-        await fetch(`${apiUrl}/api/playlists/${selectedPlaylist.id}/items/add`, {
+        await fetch(`${apiUrl}/api/playlists/${appPlaylist.id}/items/add`, {
           method: 'POST',
           body: JSON.stringify({items: [folder], play: shouldPlay, replace: shouldReplace}),
           headers: {
             'Content-Type': 'application/json'
           }
         })
+        .then(() => setSelectedPlaylist(appPlaylist))
         .then(() => updatePlayerStatus())
       }
     } catch (error) {
@@ -350,30 +354,61 @@ const Main = () => {
 
   useEffect(() => {
     const blockedPlaylists = ['Full Albums', 'Search', 'Library Selection']
+    const appPlaylistName = 'Rusoftware\'s App'
+
+    const createAppPlaylist = async () => {
+      try {
+        await fetch(`${apiUrl}/api/playlists/add`, {
+          method: 'POST',
+          body: JSON.stringify({title: appPlaylistName}),
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        })
+        .then(() => {
+          // default playlist created
+          fetchPlaylists()
+        })
+      }
+      catch (error) {
+        console.log("unable to create Default App Playlist")
+      }
+    }
+
     const fetchPlaylists = async() => {
       try {
-        const response = await fetch(`${apiUrl}/api/playlists`)
-        const data = await response.json()
+        const response = await fetch(`${apiUrl}/api/playlists`);
+        const data = await response.json();
+
+        const appPlaylistExists = data.playlists.find(playlist => playlist?.title === appPlaylistName);
+
+        if (!appPlaylistExists) {
+          return createAppPlaylist()
+        };
 
         const updatedPlaylists = data.playlists.map(playlist => {
           if (blockedPlaylists.includes(playlist.title)) {
             return { ...playlist, blocked: true }
           }
           return playlist
-        })
+        });
 
-        setPlaylists(updatedPlaylists)
+        setPlaylists(updatedPlaylists);
 
-        const currentPlaylist = updatedPlaylists.find(playlist => playlist.isCurrent)
-        setSelectedPlaylist(currentPlaylist)
+        const selectedPl = updatedPlaylists.find(playlist => playlist?.isCurrent || playlist?.title === appPlaylistName);
+        setSelectedPlaylist(selectedPl);
+
+        const appPl = updatedPlaylists.find(playlist =>  playlist?.title === appPlaylistName);
+        setAppPlaylist(appPl);
+
       } catch (error) {
         console.log('failed fetching playlists', error)
       }
-    }
+    };
 
     if (apiUrl) {
       fetchPlaylists()
-    }
+    };
   }, [apiUrl])
 
   useEffect(() => {
@@ -428,6 +463,12 @@ const Main = () => {
         if (updateData && updateData.player && updateData.player.activeItem) {
           drawSongInfo(updateData)
           handleVolume(updateData.player.volume)
+          //console.log('currentSong pl', updateData?.player?.activeItem?.playlistId)
+          //console.log('current', updateData?.playlists?.find(pl => pl?.id === updateData?.player?.activeItem?.playlistId))
+          
+          if (updateData.player.playbackState !== playing) {
+            setPlaying(updateData.player.playbackState)
+          }
         }
       }
 
