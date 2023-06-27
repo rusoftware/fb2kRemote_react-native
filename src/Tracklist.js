@@ -7,7 +7,7 @@ import StyledText from '../customComponents/styledText';
 const tracklistWidth = Dimensions.get('window').width - 4;
 
 const Tracklist = ({
-  selectedPlaylist,
+  playerPlaylist,
   tracklistsSongs,
   playSong,
   playlistItemsRemove,
@@ -45,8 +45,8 @@ const Tracklist = ({
         <View>
           <StyledText h2 style={styles.playlistTitle}>
             from{' '}
-            {selectedPlaylist
-              ? selectedPlaylist?.title
+            {playerPlaylist
+              ? playerPlaylist?.title
               : 'Seleccionar opción'}
           </StyledText>
         </View>
@@ -58,13 +58,13 @@ const Tracklist = ({
             style={[
               styles.trackItem,
               index === currentSong.track &&
-              selectedPlaylist.id === currentSong.playlistId
+              playerPlaylist.id === currentSong.playlistId
                 ? styles.selectedTrack
                 : null,
             ]}
             key={index}
           >
-            <TouchableWithoutFeedback onPress={() => playSong(index)}>
+            <TouchableWithoutFeedback onPress={() => playSong(index, playerPlaylist.id)}>
               <View>
                 <Text style={styles.trackName}>
                   {item.columns[3]} - {item.columns[4]}

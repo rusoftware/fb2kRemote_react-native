@@ -11,13 +11,13 @@ import RNEventSource from 'react-native-event-source';
 import { dbToLinear, linearToDb } from './utils.js';
 
 const Main = () => {
-  const [apiUrl, setApiUrl] = useState(null)
-  const [page, setPage] = useState('setup')
-  const [rootMusicPath, setRootMusicPath] = useState('')
-  const [currentPath, setCurrentPath] = useState(null)
-  const [folders, setFolders] = useState([])
-  const [playing, setPlaying] = useState('foo')
-  const [volume, setVolume] = useState({})
+  const [apiUrl, setApiUrl] = useState(null);
+  const [page, setPage] = useState('setup');
+  const [rootMusicPath, setRootMusicPath] = useState('');
+  const [currentPath, setCurrentPath] = useState(null);
+  const [folders, setFolders] = useState([]);
+  const [playing, setPlaying] = useState('foo');
+  const [volume, setVolume] = useState({});
   const [currentSong, setCurrentSong] = useState({
     track: -1,
     playlistId: -1,
@@ -26,30 +26,30 @@ const Main = () => {
     year: '',
     artist: '',
     duration: 0
-  })
-  const [songPosition, setSongPosition] = useState(0)
-  const [albumCover, setAlbumCover] = useState(null)
-  const [appPlaylist, setAppPlaylist] = useState('')
-  const [selectedPlaylist, setSelectedPlaylist] = useState(null)
-  //const [currentPlaylist, setCurrentPlaylist] = useState(null)
-  const [playlists, setPlaylists] = useState([])
-  const [selectedPlaylistSongs, setSelectedPlaylistSongs] = useState([])
-  const [tracklistsSongs, setTracklistsSongs] = useState([])
+  });
+  const [songPosition, setSongPosition] = useState(0);
+  const [albumCover, setAlbumCover] = useState(null);
+  const [appPlaylist, setAppPlaylist] = useState('');
+  const [selectedPlaylist, setSelectedPlaylist] = useState(null);
+  const [playerPlaylist, setPlayerPlaylist] = useState(null);
+  const [playlists, setPlaylists] = useState([]);
+  const [selectedPlaylistSongs, setSelectedPlaylistSongs] = useState([]);
+  const [tracklistsSongs, setTracklistsSongs] = useState([]);
 
-  const currentPositionRef = useRef(songPosition)
-  const prevAlbumRef = useRef(currentSong.album)
+  const currentPositionRef = useRef(songPosition);
+  const prevAlbumRef = useRef(currentSong.album);
 
   useEffect(() => {
     const gettingUrl = async () => {
-      const storedAPI = await getAPI()
+      const storedAPI = await getAPI();
       if (storedAPI) {
-        setApiUrl(storedAPI)
-        setPage('player')
+        setApiUrl(storedAPI);
+        setPage('player');
       }
     }
 
     gettingUrl()
-  }, [apiUrl])
+  }, [apiUrl]);
 
   const params = {
     player: true,
@@ -57,7 +57,7 @@ const Main = () => {
     trcolumns: ['%artist%', '%album%', '%title%', '%year%', '%tracknumber%']
   }
 
-  const queryString = new URLSearchParams(params).toString()
+  const queryString = new URLSearchParams(params).toString();
   
   const alertMessage = (title, message) => {
     Alert.alert(
@@ -75,15 +75,15 @@ const Main = () => {
       fetch(`${apiUrl}/api/player/${action}`, {
         method: 'POST'
       })
-      .then(() => updatePlayerStatus())
+      .then(() => updatePlayerStatus());
     }
     catch (error) {
-      console.error('Error handling click', error)
+      console.error('Error handling click', error);
     }
   }
 
   const drawSongInfo = async (data) => {
-    setSongPosition(data.player.activeItem.position)
+    setSongPosition(data.player.activeItem.position);
     setCurrentSong(prevSong => {
       if (
         prevSong.track !== data.player.activeItem.index ||
@@ -101,37 +101,44 @@ const Main = () => {
         }
       }
     
-      return prevSong
-    })
+      return prevSong;
+    });
   }
+
+  const fetchTracklistTracks = async () => {
+    if (playerPlaylist) {
+      const response = await fetch(`${apiUrl}/api/playlists/${playerPlaylist.id}/items/0:2000?columns=%25artist%25,%25album%25,%25year%25,%25track%25,%25title%25`);
+      const data = await response.json();
+      setTracklistsSongs(data.playlistItems.items);
+    }
+  };
 
   const fetchTracks = useCallback(async () => {
     if (selectedPlaylist) {
       try {
-        const response = await fetch(`${apiUrl}/api/playlists/${selectedPlaylist.id}/items/0:2000?columns=%25artist%25,%25album%25,%25year%25,%25track%25,%25title%25`)
-        const data = await response.json()
-        setTracklistsSongs(data.playlistItems.items)
+        const response = await fetch(`${apiUrl}/api/playlists/${selectedPlaylist.id}/items/0:2000?columns=%25artist%25,%25album%25,%25year%25,%25track%25,%25title%25`);
+        const data = await response.json();
 
-        const groupedData = {}
+        const groupedData = {};
         
         const getMiniArt = async (track) => {
           try {
-            const response = await fetch(`${apiUrl}/api/artwork/${selectedPlaylist.id}/${track}`)
+            const response = await fetch(`${apiUrl}/api/artwork/${selectedPlaylist.id}/${track}`);
             if (response.ok) {
-              const coverURL = `${response.url}?ts=${Date.now()}`
-              return(coverURL)
+              const coverURL = `${response.url}?ts=${Date.now()}`;
+              return(coverURL);
             }
           } catch (error) {
-            console.error('Error:', error)
+            console.error('Error:', error);
           }
         }
 
         data.playlistItems.items.forEach((item, index) => {
-          const [artist, album, year, trackNumber, songName] = item.columns
-          const albumKey = `${year} - ${album}`
+          const [artist, album, year, trackNumber, songName] = item.columns;
+          const albumKey = `${year} - ${album}`;
 
           if (!groupedData[artist]) {
-            groupedData[artist] = {}
+            groupedData[artist] = {};
           }
 
           if (!groupedData[artist][albumKey]) {
@@ -140,22 +147,22 @@ const Main = () => {
               name: album,
               year: year,
               songs: []
-            }
+            };
           }
 
           groupedData[artist][albumKey]['songs'].push({
             trackNumber,
             songName,
             songIndex: index
-          })
-        })
+          });
+        });
 
-        setSelectedPlaylistSongs(groupedData)
+        setSelectedPlaylistSongs(groupedData);
       } catch (error) {
-        console.log('failed fetching tracks', error)
+        console.log('failed fetching tracks', error);
       }
     }
-  }, [apiUrl, selectedPlaylist])
+  }, [apiUrl, selectedPlaylist]);
 
   const handleVolume = (playerVolume) => {
 
@@ -182,7 +189,7 @@ const Main = () => {
     }
 
     if (playerVolume.value !== volume.value) {
-      setVolume(handleVolumeData(playerVolume))
+      setVolume(handleVolumeData(playerVolume));
     }
   }
 
@@ -194,10 +201,10 @@ const Main = () => {
         headers: {
           'Content-Type': 'application/json',
         },
-      })
+      });
     }
     catch (error) {
-      console.log("error updating volume", error)
+      console.log("error updating volume", error);
     }
   }
 
@@ -205,18 +212,18 @@ const Main = () => {
     try {
       const response = await fetch(`${apiUrl}/api/player?player=true&columns=%25artist%25,%25album%25,%25title%25,%25year%25`, {
         method: 'GET'
-      })
-      const playerData = await response.json()
+      });
+      const playerData = await response.json();
 
-      setPlaying(playerData.player.playbackState)
-      handleVolume(playerData.player.volume)
-      drawSongInfo(playerData)
-      fetchTracks()
+      setPlaying(playerData.player.playbackState);
+      handleVolume(playerData.player.volume);
+      drawSongInfo(playerData);
+      fetchTracks();
 
     } catch (e) {
-      console.log("failed updating status")
+      console.log("failed updating status");
     }
-  }, [fetchTracks])
+  }, [fetchTracks]);
 
   const updateSongPosition = async (newPosition) => {
     fetch(`${apiUrl}/api/player`, {
@@ -226,28 +233,28 @@ const Main = () => {
         'Content-Type': 'application/json',
       },
     })
-    .then(() => setSongPosition(newPosition))
+    .then(() => setSongPosition(newPosition));
   }
 
-  const playSong = async (songId) => {
+  const playSong = async (songId, listId) => {
     try {
-      await fetch(`${apiUrl}/api/player/play/${selectedPlaylist.id}/${songId}`, {
+      await fetch(`${apiUrl}/api/player/play/${listId}/${songId}`, {
         method: 'POST',
       })
-      .then(() => updatePlayerStatus())
+      .then(() => updatePlayerStatus());
     } catch (error) {
-      console.error('Error:', error)
+      console.error('Error:', error);
     }
   }
 
   const handlePageChange = (newPage) => {
-    setPage(newPage)
+    setPage(newPage);
   }
 
   const playlistItemsAdd = async (ev, folder, shouldPlay, shouldReplace) => {
     try {
       if (selectedPlaylist.blocked) {
-        alertMessage('wait...', 'blocked playlist')
+        alertMessage('wait...', 'blocked playlist');
       }
       else {
         await fetch(`${apiUrl}/api/playlists/${appPlaylist.id}/items/add`, {
@@ -257,11 +264,11 @@ const Main = () => {
             'Content-Type': 'application/json'
           }
         })
-        .then(() => setSelectedPlaylist(appPlaylist))
-        .then(() => updatePlayerStatus())
+        .then(() => setPlayerPlaylist(appPlaylist))
+        .then(() => updatePlayerStatus());
       }
     } catch (error) {
-      console.error('Error:', error)
+      console.error('Error:', error);
     }
   }
 
@@ -278,83 +285,106 @@ const Main = () => {
             'Content-Type': 'application/json'
           }
         })
-        .then(() => updatePlayerStatus())
+        .then(() => updatePlayerStatus());
       }
     } catch (error) {
-      console.error('Error:', error)
+      console.error('Error:', error);
+    }
+  }
+
+  const settingPlayerPlaylist = (id) => {
+    if (currentSong.playlistId !== -1 && playlists.length) {
+      if (!playerPlaylist) {
+        const playlerPl = playlists.find(pl => pl.id === currentSong.playlistId);
+        setPlayerPlaylist(playlerPl);
+        fetchTracklistTracks();
+      }
+      if (playerPlaylist && currentSong.playlistId && playerPlaylist.id !== currentSong.playlistId) {
+        const playlerPl = playlists.find(pl => pl.id === currentSong.playlistId);
+        setPlayerPlaylist(playlerPl);
+        fetchTracklistTracks();
+      }
     }
   }
 
   useEffect(() => {
-    currentPositionRef.current = songPosition
-  }, [songPosition])
+    settingPlayerPlaylist();
+  }, [playlists, currentSong]);
+
+  useEffect(() => {
+    fetchTracklistTracks();
+  }, [apiUrl, playerPlaylist]);
+
+  useEffect(() => {
+    currentPositionRef.current = songPosition;
+  }, [songPosition]);
 
   useEffect(() => {
     if (apiUrl) {
-      updatePlayerStatus()
+      updatePlayerStatus();
     }
-  }, [updatePlayerStatus, apiUrl])
+  }, [updatePlayerStatus, apiUrl]);
   
   useEffect(() => {
-    const timerInterval = 1000
+    const timerInterval = 1000;
 
     const updateProgressBarPosition = () => {
       if (playing !== 'playing') {
-        clearInterval(interval)
+        clearInterval(interval);
       }
 
-      const currentPosition = currentPositionRef.current
-      const newPosition = currentPosition + timerInterval / 1000
-      currentPositionRef.current += newPosition
-      setSongPosition(newPosition)
+      const currentPosition = currentPositionRef.current;
+      const newPosition = currentPosition + timerInterval / 1000;
+      currentPositionRef.current += newPosition;
+      setSongPosition(newPosition);
     }
 
-    const interval = setInterval(updateProgressBarPosition, timerInterval)
+    const interval = setInterval(updateProgressBarPosition, timerInterval);
 
     return () => {
-      clearInterval(interval)
+      clearInterval(interval);
     }
-  }, [currentSong.track, playing, updatePlayerStatus, apiUrl])
+  }, [currentSong.track, playing, updatePlayerStatus, apiUrl]);
 
   useEffect(() => {
-    fetchTracks()
-  }, [fetchTracks, selectedPlaylist, currentSong.track, apiUrl])
+    fetchTracks();
+  }, [fetchTracks, selectedPlaylist, currentSong.track, apiUrl]);
 
   useEffect(() => {
     const fetchRootURL = async () => {
       fetch(`${apiUrl}/api/browser/roots`)
         .then(response => response.json())
-        .then(data => setRootMusicPath(data.roots[0].path))
+        .then(data => setRootMusicPath(data.roots[0].path));
     }
     if (apiUrl) {
-      fetchRootURL()
+      fetchRootURL();
     }
-  }, [apiUrl])
+  }, [apiUrl]);
 
   useEffect(() => {
     const getCoverArt = async () => {
       try {
-        const response = await fetch(`${apiUrl}/api/artwork/${currentSong.playlistId}/${currentSong.track}`)
+        const response = await fetch(`${apiUrl}/api/artwork/${currentSong.playlistId}/${currentSong.track}`);
         if (response.ok) {
-          const coverURL = `${response.url}?ts=${Date.now()}`
-          setAlbumCover(coverURL)
+          const coverURL = `${response.url}?ts=${Date.now()}`;
+          setAlbumCover(coverURL);
         } else {
-          console.log('Network response was not ok')
+          console.log('Network response was not ok');
         }
       } catch (error) {
-        console.error('Error:', error)
+        console.error('Error:', error);
       }
     };
   
     if (apiUrl && currentSong.album && (prevAlbumRef.current !== currentSong.album)) {
-      getCoverArt()
-      prevAlbumRef.current = currentSong.album
+      getCoverArt();
+      prevAlbumRef.current = currentSong.album;
     }
-  }, [apiUrl, currentSong.album])
+  }, [apiUrl, currentSong.album]);
 
   useEffect(() => {
-    const blockedPlaylists = ['Full Albums', 'Search', 'Library Selection']
-    const appPlaylistName = 'Rusoftware\'s App'
+    const blockedPlaylists = ['Full Albums', 'Search', 'Library Selection'];
+    const appPlaylistName = 'Rusoftware\'s App';
 
     const createAppPlaylist = async () => {
       try {
@@ -367,11 +397,11 @@ const Main = () => {
         })
         .then(() => {
           // default playlist created
-          fetchPlaylists()
-        })
+          fetchPlaylists();
+        });
       }
       catch (error) {
-        console.log("unable to create Default App Playlist")
+        console.log("unable to create Default App Playlist");
       }
     }
 
@@ -459,33 +489,31 @@ const Main = () => {
       // const eventSource = new RNEventSource(`${apiUrl}/api/query/events?${queryString}`)
 
       const handleUpdatesMessage = async (update) => {
-        const updateData = await JSON.parse(update.data)
+        const updateData = await JSON.parse(update.data);
         if (updateData && updateData.player && updateData.player.activeItem) {
-          drawSongInfo(updateData)
-          handleVolume(updateData.player.volume)
-          //console.log('currentSong pl', updateData?.player?.activeItem?.playlistId)
-          //console.log('current', updateData?.playlists?.find(pl => pl?.id === updateData?.player?.activeItem?.playlistId))
-          
+          drawSongInfo(updateData);
+          handleVolume(updateData.player.volume);
+
           if (updateData.player.playbackState !== playing) {
-            setPlaying(updateData.player.playbackState)
+            setPlaying(updateData.player.playbackState);
           }
         }
       }
 
-      updatesSource.addEventListener('message', handleUpdatesMessage)
+      updatesSource.addEventListener('message', handleUpdatesMessage);
 
       return () => {
-        updatesSource.removeAllListeners()
-        updatesSource.close()
+        updatesSource.removeAllListeners();
+        updatesSource.close();
       };
     }
 
     if (apiUrl) {
-      creatingEventSources()
+      creatingEventSources();
     }
   }, [apiUrl])
 
-  const imgBg = ( albumCover ) ? { uri: albumCover } : require('../assets/img/album-bg.png')
+  const imgBg = ( albumCover ) ? { uri: albumCover } : require('../assets/img/album-bg.png');
 
   return (
     <ImageBackground source={ imgBg } resizeMode="cover" blurRadius={20} style={{flex: 1}}>
@@ -512,7 +540,7 @@ const Main = () => {
                   alertMessage={alertMessage}
                 />
                 <Tracklist
-                  selectedPlaylist={selectedPlaylist}
+                  playerPlaylist={playerPlaylist}
                   tracklistsSongs={tracklistsSongs}
                   playSong={playSong}
                   playlistItemsRemove={playlistItemsRemove}
