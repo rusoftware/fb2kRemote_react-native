@@ -150,7 +150,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   albumCover: {
-    marginTop: 10,
+    marginTop: 20,
     marginBottom: 16,
     width: playerSize,
     height: playerSize,
