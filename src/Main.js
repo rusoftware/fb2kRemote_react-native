@@ -254,19 +254,17 @@ const Main = () => {
   const playlistItemsAdd = async (ev, folder, shouldPlay, shouldReplace) => {
     try {
       if (selectedPlaylist.blocked) {
-        alertMessage('wait...', 'blocked playlist');
+        alertMessage('wait...', 'current playlist is blocked, using app default');
       }
-      else {
-        await fetch(`${apiUrl}/api/playlists/${appPlaylist.id}/items/add`, {
-          method: 'POST',
-          body: JSON.stringify({items: [folder], play: shouldPlay, replace: shouldReplace}),
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        })
-        .then(() => setPlayerPlaylist(appPlaylist))
-        .then(() => updatePlayerStatus());
-      }
+      await fetch(`${apiUrl}/api/playlists/${appPlaylist.id}/items/add`, {
+        method: 'POST',
+        body: JSON.stringify({items: [folder], play: shouldPlay, replace: shouldReplace}),
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
+      .then(() => setPlayerPlaylist(appPlaylist))
+      .then(() => updatePlayerStatus());
     } catch (error) {
       console.error('Error:', error);
     }
@@ -493,6 +491,7 @@ const Main = () => {
         if (updateData && updateData.player && updateData.player.activeItem) {
           drawSongInfo(updateData);
           handleVolume(updateData.player.volume);
+          fetchTracklistTracks();
 
           if (updateData.player.playbackState !== playing) {
             setPlaying(updateData.player.playbackState);
