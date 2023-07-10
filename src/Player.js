@@ -12,7 +12,7 @@ import StyledText from "../customComponents/styledText"
 import Header from "../customComponents/header";
 import { Ionicons, MaterialIcons, Fontisto } from '@expo/vector-icons'
 
-const playerSize = Dimensions.get('window').width / 1.54 //- 30
+const playerSize = Dimensions.get('window').width / 1.34 //- 30
 const windowWidth = Dimensions.get('window').width
 
 const Player = ({
@@ -68,8 +68,7 @@ const Player = ({
           </View>
           <View style={styles.songInfo}>
             <StyledText h1>{ currentSong.title }</StyledText>
-            <StyledText h2>{ currentSong.artist }</StyledText>
-            <StyledText h2>{ currentSong.album } - { currentSong.year }</StyledText>
+            <StyledText h2>{ currentSong.artist } - { currentSong.album } - { currentSong.year }</StyledText>
           </View>
 
           <View style={styles.progressBarContainer}>

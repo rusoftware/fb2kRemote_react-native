@@ -107,16 +107,16 @@ const Main = () => {
 
   const fetchTracklistTracks = async () => {
     if (playerPlaylist) {
-      const response = await fetch(`${apiUrl}/api/playlists/${playerPlaylist.id}/items/0:2000?columns=%25artist%25,%25album%25,%25year%25,%25track%25,%25title%25`);
+      const response = await fetch(`${apiUrl}/api/playlists/${playerPlaylist.id}/items/0:100?columns=%25artist%25,%25album%25,%25year%25,%25track%25,%25title%25`);
       const data = await response.json();
       setTracklistsSongs(data.playlistItems.items);
     }
   };
 
   const fetchTracks = useCallback(async () => {
-    if (selectedPlaylist) {
+    if (selectedPlaylist && selectedPlaylist.itemCount<100) {
       try {
-        const response = await fetch(`${apiUrl}/api/playlists/${selectedPlaylist.id}/items/0:2000?columns=%25artist%25,%25album%25,%25year%25,%25track%25,%25title%25`);
+        const response = await fetch(`${apiUrl}/api/playlists/${selectedPlaylist.id}/items/0:100?columns=%25artist%25,%25album%25,%25year%25,%25track%25,%25title%25`);
         const data = await response.json();
 
         const groupedData = {};
@@ -161,6 +161,9 @@ const Main = () => {
       } catch (error) {
         console.log('failed fetching tracks', error);
       }
+    }
+    else {
+      setSelectedPlaylistSongs({});
     }
   }, [apiUrl, selectedPlaylist]);
 
@@ -218,6 +221,7 @@ const Main = () => {
       setPlaying(playerData.player.playbackState);
       handleVolume(playerData.player.volume);
       drawSongInfo(playerData);
+      fetchTracklistTracks();
       fetchTracks();
 
     } catch (e) {
@@ -241,7 +245,10 @@ const Main = () => {
       await fetch(`${apiUrl}/api/player/play/${listId}/${songId}`, {
         method: 'POST',
       })
-      .then(() => updatePlayerStatus());
+      .then(() => {
+        settingPlayerPlaylist(listId);
+        updatePlayerStatus();
+      });
     } catch (error) {
       console.error('Error:', error);
     }
@@ -253,17 +260,20 @@ const Main = () => {
 
   const playlistItemsAdd = async (ev, folder, shouldPlay, shouldReplace) => {
     try {
-      if (selectedPlaylist.blocked) {
-        alertMessage('wait...', 'current playlist is blocked, using app default');
+      let playlistToUse = playerPlaylist;
+      if (playerPlaylist.blocked) {
+        alertMessage('wait...', 'current playlist is blocked, swith to default playlist');
+        playlistToUse = appPlaylist;
       }
-      await fetch(`${apiUrl}/api/playlists/${appPlaylist.id}/items/add`, {
+
+      await fetch(`${apiUrl}/api/playlists/${playlistToUse.id}/items/add`, {
         method: 'POST',
         body: JSON.stringify({items: [folder], play: shouldPlay, replace: shouldReplace}),
         headers: {
           'Content-Type': 'application/json'
         }
       })
-      .then(() => setPlayerPlaylist(appPlaylist))
+      .then(() => setPlayerPlaylist(playlistToUse))
       .then(() => updatePlayerStatus());
     } catch (error) {
       console.error('Error:', error);
@@ -290,17 +300,15 @@ const Main = () => {
     }
   }
 
-  const settingPlayerPlaylist = (id) => {
+  const settingPlayerPlaylist = () => {
     if (currentSong.playlistId !== -1 && playlists.length) {
       if (!playerPlaylist) {
         const playlerPl = playlists.find(pl => pl.id === currentSong.playlistId);
         setPlayerPlaylist(playlerPl);
-        fetchTracklistTracks();
       }
       if (playerPlaylist && currentSong.playlistId && playerPlaylist.id !== currentSong.playlistId) {
         const playlerPl = playlists.find(pl => pl.id === currentSong.playlistId);
         setPlayerPlaylist(playlerPl);
-        fetchTracklistTracks();
       }
     }
   }
@@ -544,6 +552,7 @@ const Main = () => {
                   playSong={playSong}
                   playlistItemsRemove={playlistItemsRemove}
                   currentSong={currentSong}
+                  applicationPlaylist={appPlaylist}
                 />
               </>
             )}
@@ -565,6 +574,8 @@ const Main = () => {
                 playlists={playlists}
                 selectedPlaylistSongs={selectedPlaylistSongs}
                 playSong={playSong}
+                playerPlaylist={playerPlaylist}
+                currentSong={currentSong}
               />
             )}
             {page === 'volume' && (

@@ -101,7 +101,8 @@ const styles = {
     marginTop: 50,
   },
   textHeader: {
-    paddingTop: 8
+    paddingTop: 8,
+    paddingHorizontal: 8
   },
   volumeControl: {
     alignItems: 'center',
