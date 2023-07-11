@@ -69,8 +69,13 @@ const Tracklist = ({
             ]}
             key={index}
           >
+            {(index === currentSong.track && playerPlaylist.id === currentSong.playlistId) &&
+              <View style={styles.trackPlaying}>
+                <Ionicons name="md-volume-medium" size={24} color="#ebebeb" />
+              </View>
+            }
             <TouchableWithoutFeedback onPress={() => playSong(index, playerPlaylist.id)}>
-              <View>
+              <View style={styles.trackContent}>
                 <Text style={styles.trackName}>
                   {item.columns[3]} - {item.columns[4]}
                 </Text>
@@ -79,17 +84,11 @@ const Tracklist = ({
                 </Text>
               </View>
             </TouchableWithoutFeedback>
-            {(index === currentSong.track && playerPlaylist.id === currentSong.playlistId) ?
+            <TouchableWithoutFeedback onPress={() => playlistItemsRemove(index)}>
               <View style={styles.trackRemove}>
-                <Ionicons name="md-volume-medium" size={24} color="#ebebeb" />
+                <MaterialCommunityIcons name="trash-can-outline" size={24} color="#ebebeb" />
               </View>
-            :
-              <TouchableWithoutFeedback onPress={() => playlistItemsRemove(index)}>
-                <View style={styles.trackRemove}>
-                  <MaterialCommunityIcons name="playlist-remove" size={24} color="#ebebeb" />
-                </View>
-              </TouchableWithoutFeedback>
-            }
+            </TouchableWithoutFeedback>
           </View>
         )}
       />
@@ -141,8 +140,11 @@ const styles = StyleSheet.create({
   selectedTrack: {
     backgroundColor: 'rgba(0, 0, 0, .2)',
   },
-  trackName: {
+  trackContent: {
     flex: 7,
+    justifyContent: 'flex-start'
+  },
+  trackName: {
     color: '#ebebeb',
     fontSize: 16
   },
@@ -153,6 +155,11 @@ const styles = StyleSheet.create({
   trackRemove: {
     textAlign: 'center',
     alignSelf: 'center',
+  },
+  trackPlaying: {
+    textAlign: 'center',
+    alignSelf: 'center',
+    paddingEnd: 12
   },
   listDrawer: {
     width: '100%',
