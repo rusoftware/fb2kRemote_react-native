@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, FlatList, Dimensions, TouchableWithoutFeedback, Animated } from 'react-native';
 import { useFonts } from 'expo-font';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { MaterialCommunityIcons, Ionicons } from '@expo/vector-icons';
 import StyledText from '../customComponents/styledText';
 
 const tracklistWidth = Dimensions.get('window').width - 4;
@@ -12,6 +12,7 @@ const Tracklist = ({
   playSong,
   playlistItemsRemove,
   currentSong,
+  applicationPlaylist
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [fontsLoaded] = useFonts({
@@ -43,12 +44,16 @@ const Tracklist = ({
     <Animated.View style={[styles.tracklistSection, { height: listHeight }]}>
       <TouchableWithoutFeedback onPress={toggleOpen}>
         <View>
-          <StyledText h2 style={styles.playlistTitle}>
-            from{' '}
-            {playerPlaylist
-              ? playerPlaylist?.title
-              : 'Seleccionar opción'}
-          </StyledText>
+          {(playerPlaylist && playerPlaylist.id !== applicationPlaylist.id) ?
+            <StyledText h2 style={styles.playlistTitle}>
+              from{' '}
+              {playerPlaylist
+                ? playerPlaylist?.title
+                : 'Seleccionar opción'}
+            </StyledText>
+            :
+            <View style={styles.listDrawer}><View style={styles.drawerLine}></View></View>
+          }
         </View>
       </TouchableWithoutFeedback>
       <FlatList
@@ -74,11 +79,17 @@ const Tracklist = ({
                 </Text>
               </View>
             </TouchableWithoutFeedback>
-            <TouchableWithoutFeedback onPress={() => playlistItemsRemove(index)}>
+            {(index === currentSong.track && playerPlaylist.id === currentSong.playlistId) ?
               <View style={styles.trackRemove}>
-                <MaterialCommunityIcons name="playlist-remove" size={24} color="#ebebeb" />
+                <Ionicons name="md-volume-medium" size={24} color="#ebebeb" />
               </View>
-            </TouchableWithoutFeedback>
+            :
+              <TouchableWithoutFeedback onPress={() => playlistItemsRemove(index)}>
+                <View style={styles.trackRemove}>
+                  <MaterialCommunityIcons name="playlist-remove" size={24} color="#ebebeb" />
+                </View>
+              </TouchableWithoutFeedback>
+            }
           </View>
         )}
       />
@@ -143,6 +154,17 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     alignSelf: 'center',
   },
+  listDrawer: {
+    width: '100%',
+    height: 12
+  },
+  drawerLine: {
+    alignSelf: 'center',
+    height: 6,
+    width: 60,
+    borderBottomColor: '#fff',
+    borderBottomWidth: 1,
+  }
 });
 
 export default Tracklist;

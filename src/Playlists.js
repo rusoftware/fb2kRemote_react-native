@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, Modal, Dimensions, Image, TouchableWithoutFeedback, ScrollView } from 'react-native';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { MaterialCommunityIcons, Ionicons } from '@expo/vector-icons';
 import StyledText from '../customComponents/styledText';
 import Header from '../customComponents/header';
 import placeholderImg from '../assets/img/no-cover.jpeg';
@@ -11,7 +11,9 @@ const Playlists = ({
   setSelectedPlaylist,
   playlists,
   selectedPlaylistSongs,
-  playSong
+  playSong,
+  playerPlaylist,
+  currentSong
 }) => {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -24,6 +26,13 @@ const Playlists = ({
     setIsOpen(false);
   };
 
+  function isCurrentPlaylist () {
+    if (selectedPlaylist.id === playerPlaylist.id) {
+      return true;
+    }
+    return false;
+  }
+
   return (
     <View style={styles.playlistsSection}>
       <Header
@@ -34,7 +43,7 @@ const Playlists = ({
         showHomeButton={ true }
         showExtraButton= {<TouchableWithoutFeedback onPress={toggleDropdown}>
           <View>
-            <MaterialCommunityIcons name="playlist-music" size={24} color="#ebebeb66" />
+            <MaterialCommunityIcons name="playlist-music" size={24} color="#ebebeb" />
           </View>
         </TouchableWithoutFeedback>}
       />
@@ -63,6 +72,12 @@ const Playlists = ({
         </TouchableWithoutFeedback>
       </Modal>
 
+      {(JSON.stringify(selectedPlaylistSongs) === "{}" &&
+        <View style={styles.noData}>
+          <StyledText style={{textAlign: 'center'}}>List is empty or is too large, please pick another</StyledText>
+        </View>
+      )}
+
       <ScrollView style={styles.playlistsContainer}>
         {Object.entries(selectedPlaylistSongs).map(([artist, albums]) => (
           <View key={artist}>
@@ -87,16 +102,21 @@ const Playlists = ({
                       const songNumber = Object.values(song)[0];
                       const songName = Object.values(song)[1];
                       const songIndex = Object.values(song)[2];
+                      const isCurrentSong = (isCurrentPlaylist() && currentSong.track === songIndex)
                       return (
-                        <View key={index} style={styles.track}>
+                        <View key={index} style={[styles.track, (isCurrentSong) ? styles.isCurrentSong : '']}>
                           <TouchableWithoutFeedback onPress={() => playSong(songIndex, selectedPlaylist.id)}>
                             <View style={styles.trackName}>
                               <StyledText h2>{songNumber} - {songName}</StyledText>
                             </View>
                           </TouchableWithoutFeedback>
-                          <TouchableWithoutFeedback onPress={() => console.log('remove')}>
+                          <TouchableWithoutFeedback onPress={() => playSong(songIndex, selectedPlaylist.id)}>
                             <View style={styles.trackRemove}>
-                              <MaterialCommunityIcons name="playlist-remove" size={24} color="#ebebeb" />
+                              {(isCurrentSong) ?
+                                <Ionicons name="md-volume-medium" size={24} color="#ebebeb" />
+                              :
+                                <Ionicons name="play" size={24} color="#ebebeb" />
+                              }
                             </View>
                           </TouchableWithoutFeedback>
                         </View>
@@ -137,7 +157,7 @@ const styles = {
   albumHeader: {
     flexDirection: 'row',
     marginTop: 26,
-    marginBottom: 6,
+    marginBottom: 0,
     paddingBottom: 6,
     borderBottomWidth: 1,
     borderColor: '#ebebeb',
@@ -160,9 +180,13 @@ const styles = {
     flexDirection: 'row',
     borderBottomWidth: 1,
     borderBottomColor: '#ebebeb',
-    paddingVertical: 8,
+    paddingVertical: 12,
+    paddingHorizontal: 8,
     minHeight: 48,
     justifyContent: 'space-between'
+  },
+  isCurrentSong: {
+    backgroundColor: 'rgba(0, 0, 0, .2)',
   },
   trackName: {
     flexGrow: 1,
@@ -171,6 +195,13 @@ const styles = {
     alignSelf: 'center',
     textAlign: 'right',
     marginLeft: 8
+  },
+  noData: {
+    height: '80%',
+    alignItems: 'center',
+    justifyContent: 'center',
+    alignSelf: 'center',
+    maxWidth: '80%'
   }
 };
 
