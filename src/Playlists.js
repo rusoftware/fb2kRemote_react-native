@@ -72,6 +72,12 @@ const Playlists = ({
         </TouchableWithoutFeedback>
       </Modal>
 
+      {(JSON.stringify(selectedPlaylistSongs) === "{}" &&
+        <View style={styles.noData}>
+          <StyledText style={{textAlign: 'center'}}>List is empty or is too large, please pick another</StyledText>
+        </View>
+      )}
+
       <ScrollView style={styles.playlistsContainer}>
         {Object.entries(selectedPlaylistSongs).map(([artist, albums]) => (
           <View key={artist}>
@@ -189,6 +195,13 @@ const styles = {
     alignSelf: 'center',
     textAlign: 'right',
     marginLeft: 8
+  },
+  noData: {
+    height: '80%',
+    alignItems: 'center',
+    justifyContent: 'center',
+    alignSelf: 'center',
+    maxWidth: '80%'
   }
 };
 

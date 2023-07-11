@@ -147,7 +147,8 @@ const styles = {
   },
   navigationFolders: {
     paddingLeft: 12,
-    paddingRight: 12
+    paddingRight: 12,
+    paddingBottom: 134
   },
   letter: {
     marginTop: 20,
