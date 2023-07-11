@@ -105,7 +105,7 @@ const Explorer = ({
                       <View style={styles.controls}>
                         <TouchableWithoutFeedback onPress={(ev) => playlistItemsAdd(ev, folder.path, true, true)}>
                           <View>
-                            <MaterialCommunityIcons name="playlist-play" size={24} color="#ebebeb" />
+                            <MaterialCommunityIcons name="disc-player" size={24} color="#ebebeb" />
                           </View>
                         </TouchableWithoutFeedback>
                       </View>
