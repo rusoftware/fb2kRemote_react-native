@@ -57,7 +57,7 @@ const Explorer = ({
         showHomeButton={ true }
         showExtraButton={
           <TouchableWithoutFeedback onPress={() => setCurrentPath(rootMusicPath)}>
-            <MaterialIcons name="folder" size={24} color='#ebebeb66' />
+            <MaterialIcons name="folder" size={20} color='#ebebeb' />
           </TouchableWithoutFeedback>
         }
       />

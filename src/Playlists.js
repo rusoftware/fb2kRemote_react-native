@@ -27,7 +27,7 @@ const Playlists = ({
   };
 
   function isCurrentPlaylist () {
-    if (selectedPlaylist.id === playerPlaylist.id) {
+    if (playerPlaylist && selectedPlaylist.id === playerPlaylist.id) {
       return true;
     }
     return false;

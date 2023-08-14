@@ -50,7 +50,7 @@ const Player = ({
         }
         showExtraButton={
           <TouchableWithoutFeedback onPress={() => handlePageChange('explorer')}>
-            <MaterialIcons name="folder" size={18} style={styles.playerIcons}/>
+            <MaterialIcons name="folder" size={20} style={styles.playerIcons}/>
           </TouchableWithoutFeedback>
         }
         showHomeButton={ false }
@@ -95,7 +95,7 @@ const Player = ({
 
           <View style={styles.playerMenu}>
             <View style={styles.playerButtons}>
-              <TouchableWithoutFeedback onPress={() => alertMessage('TODO','add lyrics component')}>
+              <TouchableWithoutFeedback onPress={() => handlePageChange('lyrics')}>
                 <Ionicons name="document-text" size={24} style={styles.lyricsIcon} />
               </TouchableWithoutFeedback>
 
