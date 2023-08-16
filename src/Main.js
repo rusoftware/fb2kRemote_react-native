@@ -432,9 +432,9 @@ const Main = () => {
 
         setPlaylists(updatedPlaylists);
 
-        const selectedPl = updatedPlaylists.find(playlist => playlist?.isCurrent || playlist?.title === appPlaylistName);
+        const selectedPl = await updatedPlaylists.find(playlist => playlist?.isCurrent || playlist?.title === appPlaylistName);
         setSelectedPlaylist(selectedPl);
-        console.log("selected", selectedPl)
+        //console.log("selected", selectedPl)
 
         const appPl = updatedPlaylists.find(playlist =>  playlist?.title === appPlaylistName);
         setAppPlaylist(appPl);
