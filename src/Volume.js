@@ -7,7 +7,8 @@ import {
 } from 'react-native'
 import { Slider } from '@miblanchard/react-native-slider'
 import StyledText from '../customComponents/styledText'
-import { MaterialIcons, MaterialCommunityIcons } from '@expo/vector-icons'
+import Header from '../customComponents/header'
+import { MaterialIcons, MaterialCommunityIcons, Ionicons } from '@expo/vector-icons'
 
 
 const windowWidth = Dimensions.get('window').width
@@ -27,14 +28,14 @@ const Volume = ({
 
   return (
     <View style={styles.volumePage}>
-      <View style={styles.header} ref={elementRef}>
-        <TouchableWithoutFeedback onPress={() => handlePageChange('player')}>
-          <View>
-            <MaterialIcons name="chevron-left" size={38} style={styles.back} color="#ebebeb" />
-          </View>
-        </TouchableWithoutFeedback>
-        <StyledText style={styles.textHeader}>Volume control</StyledText>
-      </View>
+      <Header
+        title="Volume control"
+        handlePageChange={ handlePageChange }
+        showHomeButton={ true }
+        showExtraButton={
+          <Ionicons name="md-volume-medium" size={24} color='#ebebeb66' />
+        }
+      />
 
       <SafeAreaView style={styles.volumeControl}>
         <View style={styles.volumeMain}>

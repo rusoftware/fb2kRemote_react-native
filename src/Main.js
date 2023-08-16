@@ -6,6 +6,7 @@ import Tracklist from './Tracklist';
 import Explorer from './Explorer';
 import Playlists from './Playlists';
 import Volume from './Volume';
+import Lyrics from './Lyrics';
 import AppConfig from './AppConfig';
 import RNEventSource from 'react-native-event-source';
 import { dbToLinear, linearToDb } from './utils.js';
@@ -431,8 +432,9 @@ const Main = () => {
 
         setPlaylists(updatedPlaylists);
 
-        const selectedPl = updatedPlaylists.find(playlist => playlist?.isCurrent || playlist?.title === appPlaylistName);
+        const selectedPl = await updatedPlaylists.find(playlist => playlist?.isCurrent || playlist?.title === appPlaylistName);
         setSelectedPlaylist(selectedPl);
+        //console.log("selected", selectedPl)
 
         const appPl = updatedPlaylists.find(playlist =>  playlist?.title === appPlaylistName);
         setAppPlaylist(appPl);
@@ -450,7 +452,7 @@ const Main = () => {
   useEffect(() => {
     const fetchFolders = async () => {
       const excludedFolders = ['MusicBee']
-      const includedExtensions = ['mp3', 'flac']
+      const includedExtensions = ['mp3', 'flac', 'cue']
       if (currentPath || rootMusicPath)
       try {
         const response = await fetch(`${apiUrl}/api/browser/entries?path=${currentPath || rootMusicPath}`)
@@ -470,6 +472,11 @@ const Main = () => {
 
           if (isFile) {
             const fileExtension = entry.name.split('.').pop().toLowerCase()
+            /*if(fileExtension === 'cue') {
+              //fetch(entry.path).then((resp) => console.log(resp)).catch((err)=>console.log("error", err))
+              
+              console.log(entry.path, apiUrl)
+            }*/
             return includedExtensions.includes(fileExtension)
           }
 
@@ -584,6 +591,14 @@ const Main = () => {
                 setVolume={setVolume}
                 handlePageChange={handlePageChange}
                 updateVolume={updateVolume}
+              />
+            )}
+            {page === 'lyrics' && (
+              <Lyrics
+                handlePageChange={handlePageChange}
+                currentSong={currentSong}
+                playing={playing}
+                handlePlayerClick={handlePlayerClick}
               />
             )}
             {(page === 'setup') && (
