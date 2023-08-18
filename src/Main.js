@@ -304,7 +304,7 @@ const Main = () => {
   const settingPlayerPlaylist = () => {
     if (currentSong.playlistId !== -1 && playlists.length) {
       if (!playerPlaylist) {
-        const playlerPl = playlists.find(pl => pl.id === currentSong.playlistId);
+        const playlerPl = playlists.find(pl => pl.id === currentSong.playlistId) || selectedPlaylist || appPlaylist;
         setPlayerPlaylist(playlerPl);
       }
       if (playerPlaylist && currentSong.playlistId && playerPlaylist.id !== currentSong.playlistId) {
